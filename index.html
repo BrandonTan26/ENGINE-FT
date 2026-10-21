@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>brandretailcortex - FT Answer Search Engine</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              accent: '#ef4444'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- SheetJS for Excel & CSV parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <!-- PDF.js for PDF text extraction -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  </script>
+
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <style>
+    /* Custom sleek scrollbars */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.35);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.6);
+    }
+    /* Touch optimization */
+    button, input, textarea {
+      touch-action: manipulation;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-150 antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- Mobile Top Header Bar -->
+  <header class="lg:hidden flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40 backdrop-blur-md bg-white/90 dark:bg-slate-900/90">
+    <div class="flex items-center space-x-2.5">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-rose-500 flex items-center justify-center text-white font-black text-sm shadow-sm">
+        <i class="ph ph-lightning"></i>
+      </div>
+      <div>
+        <h1 class="text-xs font-black tracking-tight text-slate-900 dark:text-white leading-none">brandretailcortex</h1>
+        <p class="text-[10px] text-rose-500 font-semibold mt-0.5">FT Answer Engine • Offline</p>
+      </div>
+    </div>
+    <div class="flex items-center space-x-2">
+      <button id="themeToggleMobile" aria-label="Toggle Theme" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 active:scale-95 transition">
+        <i class="ph ph-moon text-base dark:hidden"></i>
+        <i class="ph ph-sun text-base hidden dark:block text-amber-400"></i>
+      </button>
+      <button id="mobileMenuBtn" aria-label="Open Menu" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 active:scale-95 transition">
+        <i class="ph ph-list text-lg"></i>
+      </button>
+    </div>
+  </header>
+
+  <div class="flex flex-1 overflow-hidden relative">
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col transform -translate-x-full lg:translate-x-0 lg:static transition-transform duration-250 ease-out shadow-2xl lg:shadow-none">
+      
+      <!-- Brand Logo / Header -->
+      <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-rose-500 flex items-center justify-center text-white font-black shadow-md shadow-indigo-600/20">
+            <i class="ph ph-lightning text-2xl"></i>
+          </div>
+          <div>
+            <h1 class="font-black text-base tracking-tight leading-tight text-slate-900 dark:text-white">brandretailcortex</h1>
+            <span class="text-[10px] font-bold text-rose-500 tracking-wider uppercase">Standalone FT Engine</span>
+          </div>
+        </div>
+        <button id="closeSidebarMobile" class="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white transition">
+          <i class="ph ph-x text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Local Device Storage Indicator -->
+      <div class="mx-4 my-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 space-y-2">
+        <div class="flex items-center justify-between text-xs">
+          <span class="text-slate-500 dark:text-slate-400 font-medium">Bank Soal di HP Ini</span>
+          <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+            <i class="ph ph-hard-drive mr-1"></i> Standalone
+          </span>
+        </div>
+        <div class="text-2xl font-black text-slate-900 dark:text-white" id="sidebarQuestionCount">0</div>
+        
+        <div class="pt-1.5 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between text-[11px]">
+          <span class="text-slate-500 dark:text-slate-400">Status Penyimpanan:</span>
+          <span id="persistenceStatusBadge" class="font-semibold text-amber-500 flex items-center gap-1">
+            <i class="ph ph-clock"></i> Memeriksa...
+          </span>
+        </div>
+      </div>
+
+      <!-- Nav Menu Items -->
+      <nav class="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
+        <button onclick="switchTab('search')" id="nav-search" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-150 bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
+          <i class="ph ph-magnifying-glass text-lg"></i>
+          <span>Cari Jawaban (Search)</span>
+        </button>
+
+        <button onclick="switchTab('manage')" id="nav-manage" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all">
+          <i class="ph ph-database text-lg"></i>
+          <span>Kelola Kisi-kisi (Bank)</span>
+        </button>
+
+        <button onclick="switchTab('guide')" id="nav-guide" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all">
+          <i class="ph ph-lightbulb text-lg"></i>
+          <span>Panduan & Tips Ujian</span>
+        </button>
+      </nav>
+
+      <!-- Bottom controls & Quick share -->
+      <div class="p-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="exportCurrentDB()" class="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition" title="Export file agar bisa dikirim ke teman via WA">
+            <i class="ph ph-share-network"></i> Export JSON
+          </button>
+          <label class="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer" title="Import JSON dari teman">
+            <i class="ph ph-download-simple"></i> Import JSON
+            <input type="file" id="backupJsonInput" accept=".json" class="hidden" onchange="handleBackupRestore(event)">
+          </label>
+        </div>
+
+        <button id="themeToggle" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800/70 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+          <span class="flex items-center gap-2">
+            <i class="ph ph-moon text-base dark:hidden"></i>
+            <i class="ph ph-sun text-base hidden dark:block text-amber-400"></i>
+            <span>Mode Tampilan</span>
+          </span>
+          <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400" id="themeStatusText">Dark</span>
+        </button>
+
+        <button onclick="confirmClearDatabase()" class="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium text-rose-500 hover:bg-rose-500/10 transition">
+          <i class="ph ph-trash"></i> Reset Data HP Ini
+        </button>
+      </div>
+    </aside>
+
+    <!-- Overlay backdrop for mobile -->
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden lg:hidden"></div>
+
+    <!-- MAIN VIEW AREA -->
+    <main class="flex-1 overflow-y-auto bg-slate-100/60 dark:bg-slate-950 p-4 md:p-6 lg:p-8">
+
+      <!-- ==================== TAB 1: SEARCH / CARI JAWABAN ==================== -->
+      <section id="view-search" class="max-w-4xl mx-auto space-y-5">
+        
+        <!-- Top Compact Banner -->
+        <div class="bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-900 border border-indigo-500/30 text-white p-5 rounded-2xl shadow-xl shadow-indigo-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-bold bg-rose-500 text-white mb-1.5">
+              <i class="ph ph-lightning"></i> PENCARIAN INSTAN FT
+            </div>
+            <h2 class="text-xl md:text-2xl font-black tracking-tight">Cari Jawaban & Persentase Akurasi</h2>
+            <p class="text-xs text-slate-300 mt-0.5">Copas potongan kalimat atau kata kunci soal ujian. Jawaban otomatis muncul dalam &lt;5ms.</p>
+          </div>
+          <div class="flex items-center gap-2 self-start sm:self-auto">
+            <button onclick="pasteFromClipboard()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-md shadow-indigo-600/30 transition">
+              <i class="ph ph-clipboard-text text-base"></i>
+              <span>Paste Soal</span>
+            </button>
+            <button onclick="clearSearchInput()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700 transition">
+              Bersihkan
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Input Box -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 md:p-5 shadow-sm space-y-3.5">
+          <div class="relative">
+            <textarea id="searchQueryInput" rows="3" placeholder="Tempelkan atau ketik soal di sini... (Contoh: Apa arti OOS, batas retur roti, maksimal selisih kasir, SOP komplain konsumen)" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 text-sm md:text-base text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y transition"></textarea>
+            
+            <div class="absolute right-3 bottom-3 text-[11px] text-slate-400 font-medium">
+              <span id="charCounter">0 karakter</span>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+            <div class="flex items-center gap-4">
+              <label class="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-1.5 cursor-pointer font-medium">
+                <input type="checkbox" id="realtimeToggle" checked class="rounded text-indigo-600 focus:ring-indigo-500">
+                <span>Realtime Match (Deteksi Otomatis)</span>
+              </label>
+              <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                <span>Batas Min:</span>
+                <select id="minAccuracySelect" class="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-700 dark:text-slate-200 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                  <option value="20">20% (Longgar)</option>
+                  <option value="40" selected>40% (Rekomendasi)</option>
+                  <option value="60">60% (Ketat)</option>
+                  <option value="75">75% (Presisi)</option>
+                </select>
+              </div>
+            </div>
+
+            <button onclick="executeSearch()" class="w-full sm:w-auto px-5 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs md:text-sm font-bold rounded-xl flex items-center justify-center gap-2 shadow-md shadow-indigo-600/30 transition">
+              <i class="ph ph-magnifying-glass font-bold"></i>
+              <span>Cari Sekarang</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Results Section -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between px-1">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">Hasil Pencocokan</span>
+              <span id="resultsCountBadge" class="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">0 hasil</span>
+            </div>
+            <span id="executionTime" class="text-[11px] text-slate-400 font-mono">0 ms</span>
+          </div>
+
+          <!-- Dynamic Output Card List -->
+          <div id="resultsContainer" class="space-y-3">
+            <!-- Initial Empty State -->
+            <div class="p-8 text-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40">
+              <i class="ph ph-magnifying-glass text-3xl text-slate-400 mb-2"></i>
+              <p class="text-sm text-slate-600 dark:text-slate-300 font-semibold">Belum ada pencarian.</p>
+              <p class="text-xs text-slate-400 mt-1">Tempelkan soal di atas atau upload file kisi-kisi pada tab "Kelola Kisi-kisi".</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 2: MANAGE BANK & UPLOAD ==================== -->
+      <section id="view-manage" class="max-w-4xl mx-auto space-y-6 hidden">
+        <div>
+          <h2 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Kelola Kisi-kisi & Upload File</h2>
+          <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400">Setiap data yang diunggah disimpan <strong>permanen di browser HP/PC ini</strong> via IndexedDB tanpa batas kuota.</p>
+        </div>
+
+        <!-- Upload Container -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 md:p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <i class="ph ph-file-arrow-up text-indigo-500 text-lg"></i>
+              <span>Upload File Baru (Excel / CSV / PDF / JSON)</span>
+            </h3>
+            <span class="text-[11px] font-bold text-emerald-500 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+              Auto Storage Protection
+            </span>
+          </div>
+
+          <!-- Drag and drop zone -->
+          <div id="dropZone" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-500 rounded-2xl p-7 text-center bg-slate-50/50 dark:bg-slate-950/50 transition cursor-pointer flex flex-col items-center justify-center">
+            <input type="file" id="fileUploadInput" accept=".xlsx, .xls, .csv, .pdf, .json, .txt" multiple class="hidden">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-2.5 shadow-inner">
+              <i class="ph ph-cloud-arrow-up text-2xl"></i>
+            </div>
+            <p class="text-sm font-bold text-slate-800 dark:text-white mb-0.5">Tarik & Lepas File ke Sini atau Klik untuk Pilih</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md">Mendukung file Excel spreadsheet (.xlsx, .xls), CSV, file kisi-kisi PDF, dan Backup JSON.</p>
+            
+            <div class="mt-3.5 flex flex-wrap gap-2 justify-center">
+              <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded">.xlsx</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded">.xls</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded">.csv</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded">.pdf</span>
+              <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded">.json</span>
+            </div>
+          </div>
+
+          <!-- Progress Bar Indicator -->
+          <div id="uploadStatusBox" class="hidden p-4 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2">
+            <div class="flex items-center justify-between text-xs font-semibold">
+              <span id="uploadStatusMessage" class="text-indigo-500 flex items-center gap-1.5">
+                <i class="ph ph-spinner animate-spin"></i> Membaca dan menyimpan file...
+              </span>
+              <span id="uploadPercentage" class="text-slate-500">0%</span>
+            </div>
+            <div class="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+              <div id="uploadProgressBar" class="bg-indigo-600 h-full w-0 transition-all duration-200"></div>
+            </div>
+          </div>
+
+          <!-- Quick Format Hint -->
+          <div class="p-3.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900/60 text-xs text-indigo-900 dark:text-indigo-300 space-y-1">
+            <div class="font-bold flex items-center gap-1.5">
+              <i class="ph ph-info"></i> Format Kolom Otomatis:
+            </div>
+            <p>Sistem otomatis mendeteksi kolom: <strong>Soal / Pertanyaan</strong> dan <strong>Jawaban / Kunci</strong>. Jika kolom tidak memiliki header, kolom pertama dianggap soal dan kolom kedua dianggap jawaban.</p>
+          </div>
+        </div>
+
+        <!-- Bank Soal Explorer -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900 dark:text-white">Daftar Bank Soal Tersimpan</h3>
+              <p class="text-xs text-slate-400">Total data di memori HP: <span id="bankTotalCount" class="font-bold text-indigo-500">0</span></p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="requestPermanentStoragePrompt()" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold rounded-lg text-slate-700 dark:text-slate-300 transition">
+                <i class="ph ph-shield-check"></i> Kunci Permanen
+              </button>
+            </div>
+          </div>
+
+          <div class="relative">
+            <i class="ph ph-funnel absolute left-3 top-3 text-slate-400"></i>
+            <input type="text" id="bankFilterInput" placeholder="Cari kata kunci dalam bank soal..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs md:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+          </div>
+
+          <!-- Bank Item Container -->
+          <div id="bankListContainer" class="space-y-2.5 max-h-[460px] overflow-y-auto pr-1">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 3: GUIDES & TIPS ==================== -->
+      <section id="view-guide" class="max-w-3xl mx-auto space-y-5 hidden">
+        <div>
+          <h2 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Panduan & Tips Ujian FT</h2>
+          <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400">Trik memaksimalkan waktu pengerjaan Functional Test tanpa kendala.</p>
+        </div>
+
+        <div class="space-y-3.5">
+          <div class="bg-white dark:bg-slate-900 p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2">
+            <div class="flex items-center gap-2 text-indigo-500 font-bold text-sm">
+              <i class="ph ph-device-mobile text-lg"></i>
+              <span>1. Standalone di HP Masing-Masing</span>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              Semua kisi-kisi yang kamu upload disimpan langsung di memori HP masing-masing melalui <strong>IndexedDB Persistent</strong>. Tidak ada server terpusat yang bisa down atau lemot saat hari H ujian serentak.
+            </p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2">
+            <div class="flex items-center gap-2 text-emerald-500 font-bold text-sm">
+              <i class="ph ph-share-network text-lg"></i>
+              <span>2. Berbagi Kisi-Kisi ke Teman (Kirim via WA)</span>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              Jika kamu sudah mengupload file Excel kisi-kisi lengkap di HP kamu, klik tombol <strong>"Export JSON"</strong> di sidebar/menu. Kirim file `.json` kecil itu ke teman satu toko lewat WhatsApp. Teman kamu tinggal klik <strong>"Import JSON"</strong> dan bank soal langsung penuh terisi!
+            </p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2">
+            <div class="flex items-center gap-2 text-amber-500 font-bold text-sm">
+              <i class="ph ph-gauge text-lg"></i>
+              <span>3. Sistem Akurasi Warna</span>
+            </div>
+            <div class="text-xs text-slate-600 dark:text-slate-300 space-y-1">
+              <div><strong class="text-emerald-500">&gt; 80% (Hijau):</strong> Jawaban sangat presisi dan tepat sasaran.</div>
+              <div><strong class="text-amber-500">60% - 80% (Kuning):</strong> Soal cukup mirip, cocokkan kembali dengan opsi jawaban kuis.</div>
+              <div><strong class="text-rose-500">&lt; 60% (Merah):</strong> Kemiripan kata sebagian/parsial.</div>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2">
+            <div class="flex items-center gap-2 text-purple-500 font-bold text-sm">
+              <i class="ph ph-shield-check text-lg"></i>
+              <span>4. Data Permanen & Tidak Dihapus Browser</span>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+              Web ini secara otomatis meminta hak akses <em>Persistent Storage</em> ke sistem Android/iOS/Chrome agar browser tidak menghapus database meskipun HP kamu minim memori.
+            </p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Global Toast Notification Element -->
+  <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Confirmation Modal for DB Reset -->
+  <div id="confirmModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center gap-3 text-rose-500">
+        <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center text-xl">
+          <i class="ph ph-warning-circle"></i>
+        </div>
+        <h4 class="font-bold text-base text-slate-900 dark:text-white">Reset Database HP?</h4>
+      </div>
+      <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+        Semua soal kisi-kisi yang tersimpan di HP ini akan dihapus. Pastikan kamu sudah mengexport backup jika masih membutuhkan data ini.
+      </p>
+      <div class="flex items-center justify-end gap-2 pt-1">
+        <button onclick="closeConfirmModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition">
+          Batal
+        </button>
+        <button onclick="executeDatabaseReset()" class="px-4 py-2 text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white rounded-xl shadow-md transition">
+          Ya, Hapus Semua
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-3 px-6 text-center text-xs text-slate-500 dark:text-slate-400 z-30">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-1.5 max-w-6xl mx-auto">
+      <span>© 2026 brandretailcortex - FT Answer Search Engine. All rights reserved.</span>
+      <div class="flex items-center space-x-3 text-[11px]">
+        <span class="inline-flex items-center gap-1 text-emerald-500 font-semibold">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Standalone Engine Active
+        </span>
+        <span class="text-slate-400 font-mono">v3.0 Ultra-Fast</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JAVASCRIPT CORE LOGIC -->
+  <script>
+    /**
+     * brandretailcortex Standalone FT Engine
+     * Pure client-side persistent storage (IndexedDB + navigator.storage.persist)
+     * High-speed Dice-Sørensen + N-Gram Matching
+     */
+
+    const DB_NAME = 'brandretailcortex_standalone_db';
+    const DB_VERSION = 1;
+    const STORE_NAME = 'ft_questions';
+    let dbInstance = null;
+    let activeQuestions = [];
+
+    // Preloaded retail questions (so the app works immediately after first opening)
+    const SEED_QUESTIONS = [
+      {
+        id: 'seed-1',
+        soal: 'Apa yang dimaksud dengan OOS pada operasional toko Alfamart?',
+        jawaban: 'Out Of Stock (Kondisi kekosongan stok barang di rak pajangan maupun di gudang toko)',
+        kategori: 'Operasional Toko',
+        sheet: 'Modul Toko 2026'
+      },
+      {
+        id: 'seed-2',
+        soal: 'Berapa batas toleransi selisih kasir saat proses cloting per shift?',
+        jawaban: 'Rp 0 (Toleransi selisih kasir adalah nol rupiah atau sesuai SOP master kas)',
+        kategori: 'Kasir & Keuangan',
+        sheet: 'SOP Kasir'
+      },
+      {
+        id: 'seed-3',
+        soal: 'Metode penataan barang di rak display Alfamart yang memprioritaskan barang lebih cepat kedaluwarsa disebut...',
+        jawaban: 'FEFO (First Expired First Out)',
+        kategori: 'Display & Planogram',
+        sheet: 'Planogram Toko'
+      },
+      {
+        id: 'seed-4',
+        soal: 'Tindakan yang harus dilakukan jika ada barang mendekati batas exp date (MBD)?',
+        jawaban: 'Tarik dari rak display, pisahkan ke area retur toko, dan proses pembuatan BKE (Bukti Kirim Retur) ke DC',
+        kategori: 'Retur & Expired',
+        sheet: 'SOP Retur Barang'
+      },
+      {
+        id: 'seed-5',
+        soal: 'Apa kepanjangan dari IKT dalam target pencapaian toko retail?',
+        jawaban: 'Insentif Kinerja Toko',
+        kategori: 'HRD & Insentif',
+        sheet: 'Target Kinerja'
+      },
+      {
+        id: 'seed-6',
+        soal: 'Formula penentuan Gross Margin persentase penjualan adalah...',
+        jawaban: '((Sales - HPP) / Sales) x 100%',
+        kategori: 'Keuangan',
+        sheet: 'Finansial Toko'
+      },
+      {
+        id: 'seed-7',
+        soal: 'SOP saat melayani transaksi pembayaran online (PLN, PDAM, Top Up dompet digital) adalah...',
+        jawaban: 'Terima uang tunai fisik terlebih dahulu, hitung di depan konsumen, baru tekan tombol proses/bayar',
+        kategori: 'Layanan Kasir',
+        sheet: 'E-Services'
+      },
+      {
+        id: 'seed-8',
+        soal: 'Apa yang harus dilakukan pejabat toko jika terjadi selisih fisik saat SO (Stock Opname) harian?',
+        jawaban: 'Melakukan re-counting (hitung ulang), periksa history mutasi barang, cek faktur LPB, dan konfirmasi ke tim shift terkait',
+        kategori: 'Stock Opname',
+        sheet: 'Modul SO Toko'
+      }
+    ];
+
+    // --- 1. Persistent Storage & IndexedDB Setup ---
+    async function requestStoragePersistence() {
+      const badge = document.getElementById('persistenceStatusBadge');
+      if (navigator.storage && navigator.storage.persist) {
+        try {
+          const isPersisted = await navigator.storage.persisted();
+          if (isPersisted) {
+            badge.innerHTML = '<i class="ph ph-check-circle text-emerald-500"></i> <span class="text-emerald-500">Permanen Terkunci</span>';
+            return;
+          }
+          const granted = await navigator.storage.persist();
+          if (granted) {
+            badge.innerHTML = '<i class="ph ph-check-circle text-emerald-500"></i> <span class="text-emerald-500">Permanen Terkunci</span>';
+          } else {
+            badge.innerHTML = '<i class="ph ph-shield text-slate-400"></i> <span class="text-slate-400">Standar Browser</span>';
+          }
+        } catch (e) {
+          badge.innerHTML = '<i class="ph ph-check text-slate-400"></i> <span class="text-slate-400">Aktif Lokal</span>';
+        }
+      } else {
+        badge.innerHTML = '<i class="ph ph-check text-slate-400"></i> <span class="text-slate-400">Aktif Lokal</span>';
+      }
+    }
+
+    async function requestPermanentStoragePrompt() {
+      if (navigator.storage && navigator.storage.persist) {
+        const granted = await navigator.storage.persist();
+        if (granted) {
+          showToast('Penyimpanan permanen berhasil dikunci oleh browser!', 'success');
+        } else {
+          showToast('Status penyimpanan standar (Aman, tersimpan di HP).', 'info');
+        }
+        await requestStoragePersistence();
+      } else {
+        showToast('Browser mendukung IndexedDB lokal standar.', 'info');
+      }
+    }
+
+    function initIndexedDB() {
+      return new Promise((resolve, reject) => {
+        if (dbInstance) return resolve(dbInstance);
+
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+            store.createIndex('soal', 'soal', { unique: false });
+          }
+        };
+
+        req.onsuccess = (e) => {
+          dbInstance = e.target.result;
+          resolve(dbInstance);
+        };
+
+        req.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    async function loadQuestionsFromStorage() {
+      const db = await initIndexedDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.getAll();
+
+        req.onsuccess = async () => {
+          let items = req.result || [];
+          if (items.length === 0) {
+            // Seed initial data
+            await saveBulkToStorage(SEED_QUESTIONS);
+            activeQuestions = [...SEED_QUESTIONS];
+          } else {
+            activeQuestions = items;
+          }
+          updateCounters();
+          renderBankList();
+          resolve(activeQuestions);
+        };
+
+        req.onerror = (e) => reject(e);
+      });
+    }
+
+    async function saveBulkToStorage(items) {
+      const db = await initIndexedDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+
+        for (const item of items) {
+          store.put(item);
+        }
+
+        tx.oncomplete = () => {
+          const map = new Map();
+          activeQuestions.forEach(q => map.set(q.id, q));
+          items.forEach(q => map.set(q.id, q));
+          activeQuestions = Array.from(map.values());
+          updateCounters();
+          renderBankList();
+          resolve();
+        };
+
+        tx.onerror = (e) => reject(e);
+      });
+    }
+
+    // --- 2. String Similarity Engine (Dice-Sørensen + Token Jaccard) ---
+    function sanitizeForMatch(text) {
+      if (!text) return '';
+      return String(text)
+        .toLowerCase()
+        .replace(/[\n\r\t]+/g, ' ')
+        .replace(/[^a-z0-9\s]/gi, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function generateBigrams(str) {
+      const s = sanitizeForMatch(str);
+      const map = new Map();
+      for (let i = 0; i < s.length - 1; i++) {
+        const gram = s.substring(i, i + 2);
+        map.set(gram, (map.get(gram) || 0) + 1);
+      }
+      return map;
+    }
+
+    function calculateDice(str1, str2) {
+      if (!str1 || !str2) return 0;
+      const s1 = sanitizeForMatch(str1);
+      const s2 = sanitizeForMatch(str2);
+
+      if (s1 === s2) return 1.0;
+      if (s1.length < 2 || s2.length < 2) return s1 === s2 ? 1.0 : 0.0;
+
+      // Substring containment boost
+      if (s1.includes(s2) || s2.includes(s1)) {
+        const ratio = Math.min(s1.length, s2.length) / Math.max(s1.length, s2.length);
+        if (ratio > 0.5) return 0.94;
+      }
+
+      const p1 = generateBigrams(s1);
+      const p2 = generateBigrams(s2);
+
+      let matches = 0;
+      p1.forEach((count, key) => {
+        if (p2.has(key)) matches += Math.min(count, p2.get(key));
+      });
+
+      const total = (s1.length - 1) + (s2.length - 1);
+      return total === 0 ? 0 : (2.0 * matches) / total;
+    }
+
+    function calculateTokenJaccard(str1, str2) {
+      const t1 = new Set(sanitizeForMatch(str1).split(' ').filter(w => w.length > 1));
+      const t2 = new Set(sanitizeForMatch(str2).split(' ').filter(w => w.length > 1));
+
+      if (t1.size === 0 || t2.size === 0) return 0;
+
+      let overlap = 0;
+      t1.forEach(word => {
+        if (t2.has(word)) overlap++;
+      });
+
+      return overlap / Math.max(t1.size, 1);
+    }
+
+    function computeMatchScore(query, target) {
+      const dice = calculateDice(query, target);
+      const jaccard = calculateTokenJaccard(query, target);
+      return (dice * 0.45) + (jaccard * 0.55);
+    }
+
+    // --- 3. Instant Search Execution ---
+    function executeSearch() {
+      const query = document.getElementById('searchQueryInput').value.trim();
+      const minAccuracy = parseInt(document.getElementById('minAccuracySelect').value, 10) / 100;
+      const t0 = performance.now();
+
+      if (!query) {
+        renderResults([]);
+        document.getElementById('executionTime').innerText = '0 ms';
+        return;
+      }
+
+      const matches = [];
+      const len = activeQuestions.length;
+
+      for (let i = 0; i < len; i++) {
+        const item = activeQuestions[i];
+        const score = computeMatchScore(query, item.soal);
+        if (score >= minAccuracy) {
+          matches.push({
+            item: item,
+            percent: Math.min(Math.round(score * 100), 100)
+          });
+        }
+      }
+
+      // Sort highest match first
+      matches.sort((a, b) => b.percent - a.percent);
+
+      const t1 = performance.now();
+      document.getElementById('executionTime').innerText = `${Math.round(t1 - t0)} ms`;
+
+      renderResults(matches.slice(0, 25));
+    }
+
+    function renderResults(results) {
+      const container = document.getElementById('resultsContainer');
+      const badge = document.getElementById('resultsCountBadge');
+      badge.innerText = `${results.length} hasil`;
+
+      if (results.length === 0) {
+        container.innerHTML = `
+          <div class="p-8 text-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40">
+            <i class="ph ph-warning-circle text-3xl text-amber-500 mb-2"></i>
+            <p class="text-sm text-slate-700 dark:text-slate-300 font-bold">Tidak ada soal yang cocok dengan batas akurasi ini.</p>
+            <p class="text-xs text-slate-400 mt-1">Gunakan kata kunci yang lebih ringkas atau turunkan batas akurasi ke 20%.</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      results.forEach((r) => {
+        const { item, percent } = r;
+
+        // Color coding rules:
+        // Green >80%, Yellow 60-80%, Red <60%
+        let badgeStyle = 'bg-rose-500 text-white';
+        let statusLabel = 'Kurang Cocok';
+        let cardBorder = 'border-slate-200 dark:border-slate-800';
+
+        if (percent > 80) {
+          badgeStyle = 'bg-emerald-500 text-white shadow-sm shadow-emerald-500/20';
+          statusLabel = 'Sangat Cocok';
+          cardBorder = 'border-emerald-500/40 dark:border-emerald-500/30 ring-1 ring-emerald-500/20';
+        } else if (percent >= 60) {
+          badgeStyle = 'bg-amber-500 text-slate-950 font-black';
+          statusLabel = 'Cukup Cocok';
+          cardBorder = 'border-amber-500/30';
+        }
+
+        html += `
+          <div class="p-4 md:p-5 rounded-2xl bg-white dark:bg-slate-900 border ${cardBorder} shadow-sm hover:shadow-md transition space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-black ${badgeStyle}">
+                  <i class="ph ph-check-circle mr-1 text-sm"></i> ${percent}% Match • ${statusLabel}
+                </span>
+                ${item.kategori ? `<span class="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">${escapeHtml(item.kategori)}</span>` : ''}
+              </div>
+              <button onclick="copyToClipboard('${escapeJs(item.jawaban)}')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 hover:text-white text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl flex items-center gap-1.5 transition active:scale-95">
+                <i class="ph ph-copy"></i>
+                <span>Copy Jawaban</span>
+              </button>
+            </div>
+
+            <div>
+              <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Pertanyaan Soal:</div>
+              <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 mt-0.5 leading-snug">${escapeHtml(item.soal)}</p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200/70 dark:border-slate-800">
+              <div class="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                <i class="ph ph-key text-xs"></i> Jawaban Kunci:
+              </div>
+              <div class="text-sm md:text-base font-bold text-slate-900 dark:text-emerald-300 mt-1 select-all leading-normal">
+                ${escapeHtml(item.jawaban)}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // --- 4. File Parsing Ingestion ---
+    async function handleIncomingFiles(fileList) {
+      if (!fileList || fileList.length === 0) return;
+
+      const statusBox = document.getElementById('uploadStatusBox');
+      const statusMsg = document.getElementById('uploadStatusMessage');
+      const progressBar = document.getElementById('uploadProgressBar');
+      const percentageLabel = document.getElementById('uploadPercentage');
+
+      statusBox.classList.remove('hidden');
+      statusMsg.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Membaca data berkas...';
+      progressBar.style.width = '15%';
+      percentageLabel.innerText = '15%';
+
+      let parsedItems = [];
+
+      for (let i = 0; i < fileList.length; i++) {
+        const file = fileList[i];
+        const ext = file.name.split('.').pop().toLowerCase();
+
+        try {
+          if (ext === 'xlsx' || ext === 'xls' || ext === 'csv') {
+            const data = await readSpreadsheet(file);
+            parsedItems.push(...data);
+          } else if (ext === 'pdf') {
+            const data = await readPdfFile(file);
+            parsedItems.push(...data);
+          } else if (ext === 'json') {
+            const text = await file.text();
+            const json = JSON.parse(text);
+            if (Array.isArray(json)) {
+              parsedItems.push(...json.map(normalizeParsedEntry));
+            }
+          }
+        } catch (err) {
+          console.error("Error reading file:", file.name, err);
+          showToast(`Gagal membaca ${file.name}: ${err.message}`, 'error');
+        }
+
+        const pct = Math.round(((i + 1) / fileList.length) * 85);
+        progressBar.style.width = `${pct}%`;
+        percentageLabel.innerText = `${pct}%`;
+      }
+
+      if (parsedItems.length > 0) {
+        statusMsg.innerHTML = `<i class="ph ph-floppy-disk"></i> Menyimpan ${parsedItems.length} soal secara permanen...`;
+        await saveBulkToStorage(parsedItems);
+        progressBar.style.width = '100%';
+        percentageLabel.innerText = '100%';
+
+        showToast(`Berhasil menyimpan ${parsedItems.length} soal di HP ini!`, 'success');
+        setTimeout(() => {
+          statusBox.classList.add('hidden');
+        }, 1200);
+      } else {
+        statusBox.classList.add('hidden');
+        showToast('Tidak ada soal/jawaban valid yang terdeteksi dari file.', 'warning');
+      }
+    }
+
+    function normalizeParsedEntry(raw, idx = 0) {
+      return {
+        id: raw.id || 'q_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6) + '_' + idx,
+        soal: String(raw.soal || raw.pertanyaan || raw.question || raw.Soal || raw.PERTANYAAN || '').trim(),
+        jawaban: String(raw.jawaban || raw.kunci || raw.answer || raw.Jawaban || raw.KUNCI || '').trim(),
+        kategori: String(raw.kategori || raw.category || raw.modul || raw.Kategori || 'General').trim(),
+        sheet: String(raw.sheet || 'Upload').trim()
+      };
+    }
+
+    function readSpreadsheet(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const allRows = [];
+
+            workbook.SheetNames.forEach(sheetName => {
+              const worksheet = workbook.Sheets[sheetName];
+              const json = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+              json.forEach((row, idx) => {
+                let questionVal = '';
+                let answerVal = '';
+                let catVal = sheetName;
+
+                for (const key of Object.keys(row)) {
+                  const lower = key.toLowerCase();
+                  if (lower.includes('soal') || lower.includes('pertanyaan') || lower.includes('question')) {
+                    questionVal = row[key];
+                  } else if (lower.includes('jawaban') || lower.includes('kunci') || lower.includes('ans') || lower.includes('kunci jawaban')) {
+                    answerVal = row[key];
+                  } else if (lower.includes('kategori') || lower.includes('modul') || lower.includes('topik')) {
+                    catVal = row[key];
+                  }
+                }
+
+                // Fallback to first 2 columns if not matching headers
+                if (!questionVal && Object.keys(row).length >= 2) {
+                  const vals = Object.values(row);
+                  questionVal = vals[0];
+                  answerVal = vals[1];
+                }
+
+                if (questionVal && answerVal) {
+                  allRows.push(normalizeParsedEntry({
+                    soal: questionVal,
+                    jawaban: answerVal,
+                    kategori: catVal,
+                    sheet: sheetName
+                  }, idx));
+                }
+              });
+            });
+
+            resolve(allRows);
+          } catch (err) {
+            reject(err);
+          }
+        };
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    async function readPdfFile(file) {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = '';
+
+      for (let p = 1; p <= pdf.numPages; p++) {
+        const page = await pdf.getPage(p);
+        const content = await page.getTextContent();
+        fullText += '\n' + content.items.map(item => item.str).join(' ');
+      }
+
+      const lines = fullText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const extracted = [];
+      let curQ = '';
+      let curA = '';
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const isAnswer = /^(jawaban|kunci|ans|a[:\.\-])/i.test(line);
+
+        if (isAnswer && curQ) {
+          curA = line.replace(/^(jawaban|kunci|ans|a[:\.\-])\s*:?/i, '').trim();
+          extracted.push(normalizeParsedEntry({
+            soal: curQ,
+            jawaban: curA || 'Lihat dokumen referensi PDF',
+            kategori: 'PDF Kisi-kisi',
+            sheet: file.name
+          }, i));
+          curQ = '';
+          curA = '';
+        } else if (/^\d+[\.\)]/i.test(line) || /^(soal|q[:\.\-])/i.test(line)) {
+          curQ = line.replace(/^\d+[\.\)]\s*/, '').replace(/^(soal|q[:\.\-])\s*:?/i, '').trim();
+        }
+      }
+
+      return extracted;
+    }
+
+    // --- 5. Backup & Share via JSON (WhatsApp / Bluetooth friendly) ---
+    function exportCurrentDB() {
+      if (activeQuestions.length === 0) {
+        showToast('Tidak ada data untuk diexport.', 'warning');
+        return;
+      }
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(activeQuestions, null, 2));
+      const dl = document.createElement('a');
+      dl.setAttribute("href", dataStr);
+      dl.setAttribute("download", `kisi_kisi_ft_alfa_${Date.now()}.json`);
+      document.body.appendChild(dl);
+      dl.click();
+      dl.remove();
+      showToast('File backup JSON terunduh! Bisa dikirim ke WA teman.', 'success');
+    }
+
+    async function handleBackupRestore(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      try {
+        const text = await file.text();
+        const json = JSON.parse(text);
+        if (Array.isArray(json) && json.length > 0) {
+          const formatted = json.map(normalizeParsedEntry);
+          await saveBulkToStorage(formatted);
+          showToast(`Berhasil restore ${formatted.length} soal dari backup!`, 'success');
+        } else {
+          showToast('Format backup JSON tidak valid.', 'error');
+        }
+      } catch (e) {
+        showToast('Gagal membaca file backup JSON.', 'error');
+      }
+      event.target.value = '';
+    }
+
+    // --- 6. Database Reset Confirmation ---
+    function confirmClearDatabase() {
+      document.getElementById('confirmModal').classList.remove('hidden');
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('confirmModal').classList.add('hidden');
+    }
+
+    async function executeDatabaseReset() {
+      closeConfirmModal();
+      showToast('Menghapus semua data lokal...', 'info');
+      const db = await initIndexedDB();
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      store.clear();
+      tx.oncomplete = () => {
+        activeQuestions = [];
+        updateCounters();
+        renderBankList();
+        renderResults([]);
+        showToast('Semua data kisi-kisi di HP ini berhasil dihapus.', 'success');
+      };
+    }
+
+    // --- 7. UI Tab & Bank Rendering ---
+    function switchTab(tabId) {
+      const tabs = ['search', 'manage', 'guide'];
+      tabs.forEach(t => {
+        const viewEl = document.getElementById(`view-${t}`);
+        const navEl = document.getElementById(`nav-${t}`);
+        if (t === tabId) {
+          viewEl.classList.remove('hidden');
+          navEl.className = "nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-150 bg-indigo-600 text-white shadow-md shadow-indigo-600/20";
+        } else {
+          viewEl.classList.add('hidden');
+          navEl.className = "nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all";
+        }
+      });
+      closeMobileSidebar();
+    }
+
+    function renderBankList() {
+      const container = document.getElementById('bankListContainer');
+      const filter = (document.getElementById('bankFilterInput')?.value || '').toLowerCase();
+
+      const filtered = activeQuestions.filter(q => {
+        return (q.soal && q.soal.toLowerCase().includes(filter)) || 
+               (q.jawaban && q.jawaban.toLowerCase().includes(filter)) ||
+               (q.kategori && q.kategori.toLowerCase().includes(filter));
+      });
+
+      const totalBadge = document.getElementById('bankTotalCount');
+      if (totalBadge) totalBadge.innerText = `${filtered.length} soal`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="p-6 text-center rounded-xl border border-dashed border-slate-300 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50">
+            <p class="text-xs text-slate-500 dark:text-slate-400">Tidak ada soal yang cocok dengan kata kunci.</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      filtered.slice(0, 40).forEach((item, idx) => {
+        html += `
+          <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+            <div class="flex-1 space-y-0.5">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-bold text-indigo-500 bg-indigo-500/10 px-1.5 py-0.5 rounded">#${idx + 1}</span>
+                <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">${escapeHtml(item.kategori || 'General')}</span>
+                ${item.sheet ? `<span class="text-[10px] text-slate-400">(${escapeHtml(item.sheet)})</span>` : ''}
+              </div>
+              <p class="text-xs font-semibold text-slate-800 dark:text-slate-200 line-clamp-2">${escapeHtml(item.soal)}</p>
+              <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 pt-0.5">
+                <i class="ph ph-check"></i> <span>${escapeHtml(item.jawaban)}</span>
+              </div>
+            </div>
+            <button onclick="copyToClipboard('${escapeJs(item.jawaban)}')" class="self-start md:self-center px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-indigo-600 hover:text-white border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-lg flex items-center gap-1 transition">
+              <i class="ph ph-copy"></i> Salin
+            </button>
+          </div>
+        `;
+      });
+
+      if (filtered.length > 40) {
+        html += `<div class="text-center text-[11px] text-slate-400 py-1.5">Menampilkan 40 dari total ${filtered.length} soal. Gunakan pencarian filter di atas untuk menemukan soal spesifik.</div>`;
+      }
+
+      container.innerHTML = html;
+    }
+
+    function updateCounters() {
+      const count = activeQuestions.length;
+      document.getElementById('sidebarQuestionCount').innerText = count.toLocaleString();
+      const bTotal = document.getElementById('bankTotalCount');
+      if (bTotal) bTotal.innerText = `${count} soal`;
+    }
+
+    function copyToClipboard(text) {
+      if (!text) return;
+      const el = document.createElement('textarea');
+      el.value = text;
+      document.body.appendChild(el);
+      el.select();
+      try {
+        document.execCommand('copy');
+        showToast('Jawaban disalin ke clipboard!', 'success');
+      } catch (e) {
+        showToast('Gagal menyalin text.', 'error');
+      }
+      document.body.removeChild(el);
+    }
+
+    async function pasteFromClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        const input = document.getElementById('searchQueryInput');
+        input.value = text;
+        document.getElementById('charCounter').innerText = `${text.length} karakter`;
+        executeSearch();
+        showToast('Soal ditempelkan!', 'info');
+      } catch (err) {
+        showToast('Gunakan shortcut Ctrl+V atau tempel langsung di textarea.', 'warning');
+      }
+    }
+
+    function clearSearchInput() {
+      document.getElementById('searchQueryInput').value = '';
+      document.getElementById('charCounter').innerText = '0 karakter';
+      renderResults([]);
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      
+      let bg = 'bg-slate-900 text-white border-slate-700';
+      let icon = 'ph-info';
+      if (type === 'success') {
+        bg = 'bg-emerald-600 text-white border-emerald-500';
+        icon = 'ph-check-circle';
+      } else if (type === 'error') {
+        bg = 'bg-rose-600 text-white border-rose-500';
+        icon = 'ph-x-circle';
+      } else if (type === 'warning') {
+        bg = 'bg-amber-500 text-slate-950 border-amber-400 font-bold';
+        icon = 'ph-warning';
+      }
+
+      toast.className = `flex items-center gap-2 px-3.5 py-2.5 rounded-xl shadow-xl text-xs font-semibold border pointer-events-auto transition transform translate-y-2 opacity-0 duration-200 ${bg}`;
+      toast.innerHTML = `<i class="ph ${icon} text-base"></i> <span>${message}</span>`;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-2', 'opacity-0');
+        setTimeout(() => toast.remove(), 250);
+      }, 3000);
+    }
+
+    function escapeHtml(s) {
+      if (!s) return '';
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function escapeJs(s) {
+      if (!s) return '';
+      return String(s)
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '\\"')
+        .replace(/\n/g, '\\n')
+        .replace(/\r/g, '');
+    }
+
+    // --- Mobile Drawer Controls ---
+    function openMobileSidebar() {
+      document.getElementById('sidebar').classList.remove('-translate-x-full');
+      document.getElementById('sidebarBackdrop').classList.remove('hidden');
+    }
+
+    function closeMobileSidebar() {
+      document.getElementById('sidebar').classList.add('-translate-x-full');
+      document.getElementById('sidebarBackdrop').classList.add('hidden');
+    }
+
+    // --- Theme Controller ---
+    function initTheme() {
+      const html = document.documentElement;
+      const savedTheme = localStorage.getItem('cortex_theme') || 'dark';
+      if (savedTheme === 'light') {
+        html.classList.remove('dark');
+        document.getElementById('themeStatusText').innerText = 'Light';
+      } else {
+        html.classList.add('dark');
+        document.getElementById('themeStatusText').innerText = 'Dark';
+      }
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.classList.toggle('dark');
+      localStorage.setItem('cortex_theme', isDark ? 'dark' : 'light');
+      document.getElementById('themeStatusText').innerText = isDark ? 'Dark' : 'Light';
+    }
+
+    // --- Initialization ---
+    window.addEventListener('DOMContentLoaded', async () => {
+      initTheme();
+      await requestStoragePersistence();
+      await loadQuestionsFromStorage();
+
+      // Realtime search with debounce
+      let debounceTimer = null;
+      const searchInput = document.getElementById('searchQueryInput');
+      searchInput.addEventListener('input', (e) => {
+        const text = e.target.value;
+        document.getElementById('charCounter').innerText = `${text.length} karakter`;
+
+        if (document.getElementById('realtimeToggle').checked) {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(() => {
+            executeSearch();
+          }, 60);
+        }
+      });
+
+      // Filter input for bank
+      document.getElementById('bankFilterInput')?.addEventListener('input', () => {
+        renderBankList();
+      });
+
+      // Min accuracy selector change
+      document.getElementById('minAccuracySelect').addEventListener('change', () => {
+        executeSearch();
+      });
+
+      // File Drag & Drop
+      const dropZone = document.getElementById('dropZone');
+      const fileInput = document.getElementById('fileUploadInput');
+
+      dropZone.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', (e) => handleIncomingFiles(e.target.files));
+
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('border-indigo-500', 'bg-indigo-500/10');
+      });
+
+      dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('border-indigo-500', 'bg-indigo-500/10');
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-indigo-500', 'bg-indigo-500/10');
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          handleIncomingFiles(e.dataTransfer.files);
+        }
+      });
+
+      // Mobile drawer bindings
+      document.getElementById('mobileMenuBtn').addEventListener('click', openMobileSidebar);
+      document.getElementById('closeSidebarMobile').addEventListener('click', closeMobileSidebar);
+      document.getElementById('sidebarBackdrop').addEventListener('click', closeMobileSidebar);
+
+      // Theme toggle buttons
+      document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+      document.getElementById('themeToggleMobile').addEventListener('click', toggleTheme);
+    });
+  </script>
+</body>
+</html>
