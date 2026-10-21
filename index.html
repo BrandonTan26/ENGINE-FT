@@ -1,10 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>brandretailcortex - FT Answer Search Engine</title>
-  
+
+  <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -12,289 +18,816 @@
       theme: {
         extend: {
           colors: {
-            brand: { 50: '#eff6ff', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 900: '#1e3a8a' },
-            dark: { bg: '#0b0f19', card: '#111827', border: '#1f2937' }
+            brand: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              accent: '#ef4444'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+            display: ['Outfit', 'system-ui', 'sans-serif']
           }
         }
       }
     }
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
+
+  <!-- SheetJS for Excel (.xlsx, .xls) and CSV parsing -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';</script>
+
+  <!-- PDF.js for PDF text extraction -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  </script>
+
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
   <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    h1, h2, h3, .font-heading { font-family: 'Outfit', sans-serif; }
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.4); border-radius: 9999px; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.35); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.6); }
+    button, input, textarea { touch-action: manipulation; }
+    @keyframes subtlePulse {
+      0%, 100% { opacity: 0.25; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(1.04); }
+    }
+    .ambient-glow { animation: subtlePulse 7s ease-in-out infinite; }
   </style>
 </head>
-<body class="bg-slate-50 dark:bg-dark-bg text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200 antialiased selection:bg-indigo-600 selection:text-white">
 
-  <!-- TOP MOBILE HEADER -->
-  <header class="md:hidden sticky top-0 z-40 bg-white/90 dark:bg-dark-card/90 backdrop-blur border-b border-slate-200 dark:border-dark-border px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-sm">BC</div>
-      <span class="font-heading font-extrabold text-base tracking-tight text-blue-600 dark:text-blue-400">brandretailcortex</span>
-    </div>
-    <div class="flex items-center gap-2">
-      <button onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-        <i class="fa-solid fa-moon dark:hidden"></i>
-        <i class="fa-solid fa-sun hidden dark:inline"></i>
-      </button>
-      <button onclick="toggleMobileSidebar()" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-        <i class="fa-solid fa-bars"></i>
-      </button>
-    </div>
-  </header>
-
-  <div class="flex-1 flex w-full">
+  <!-- ==================== SCREEN 1: WELCOME / HOME LANDING VIEW ==================== -->
+  <section id="view-landing" class="min-h-screen flex flex-col justify-between bg-gradient-to-b from-slate-100 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 p-4 sm:p-6 transition-all duration-300">
     
-    <!-- SIDEBAR -->
-    <aside id="app-sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-dark-card border-r border-slate-200 dark:border-dark-border transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col justify-between">
-      <div>
-        <div class="p-5 border-b border-slate-200 dark:border-dark-border flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-extrabold text-lg shadow-md shadow-blue-500/20">BC</div>
-            <div>
-              <h1 class="font-heading font-extrabold text-lg leading-tight text-slate-900 dark:text-white">brandretailcortex</h1>
-              <span class="text-xs font-semibold text-blue-600 dark:text-blue-400">FT Answer Engine</span>
-            </div>
-          </div>
-          <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-slate-600">
-            <i class="fa-solid fa-xmark text-lg"></i>
-          </button>
+    <!-- Top Branding Header -->
+    <header class="max-w-4xl w-full mx-auto flex items-center justify-between py-2">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-rose-500 flex items-center justify-center text-white font-black shadow-lg shadow-indigo-600/30">
+          <i class="ph ph-lightning text-xl font-bold"></i>
         </div>
-
-        <div class="p-4 mx-4 my-4 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50">
-          <div class="flex justify-between items-center mb-1">
-            <span class="text-xs uppercase font-bold tracking-wider text-slate-500 dark:text-slate-400">Total Question Bank</span>
-            <span class="text-[10px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-shield-halved mr-1"></i>Offline</span>
-          </div>
-          <div class="text-2xl font-heading font-black text-slate-900 dark:text-white" id="stat-total-q">0</div>
-          <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Locked into IndexedDB</p>
+        <div>
+          <h1 class="font-display font-black text-lg tracking-tight leading-tight text-slate-900 dark:text-white">brandretailcortex</h1>
+          <span class="text-[10px] font-bold text-rose-500 tracking-wider uppercase">Functional Test Assistant • 100% Offline</span>
         </div>
-
-        <nav class="px-4 space-y-1.5">
-          <button onclick="switchView('landing')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all">
-            <i class="fa-solid fa-house w-5 text-center text-blue-500"></i>
-            <span>Home Portal</span>
-          </button>
-          <button onclick="switchView('search')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all">
-            <i class="fa-solid fa-magnifying-glass w-5 text-center text-indigo-500"></i>
-            <span>Search Engine</span>
-          </button>
-          <button onclick="switchView('manage')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all">
-            <i class="fa-solid fa-database w-5 text-center text-purple-500"></i>
-            <span>Database & Files</span>
-          </button>
-        </nav>
       </div>
 
-      <div class="p-4 border-t border-slate-200 dark:border-dark-border space-y-3">
-        <button onclick="toggleTheme()" class="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-sm font-medium text-slate-700 dark:text-slate-300">
-          <span class="flex items-center gap-2"><i class="fa-solid fa-circle-half-stroke text-slate-500"></i> Theme Mode</span>
-          <span class="text-xs uppercase font-bold text-blue-600 dark:text-blue-400" id="theme-label">Dark</span>
+      <div class="flex items-center space-x-2">
+        <button onclick="toggleTheme()" aria-label="Toggle Theme" class="p-2.5 rounded-xl bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 shadow-sm active:scale-95 transition">
+          <i class="ph ph-moon text-base dark:hidden"></i>
+          <i class="ph ph-sun text-base hidden dark:block text-amber-400"></i>
         </button>
       </div>
-    </aside>
+    </header>
 
-    <!-- MAIN VIEW AREA -->
-    <main class="flex-1 md:ml-72 flex flex-col min-h-screen">
+    <!-- Main Hero Content -->
+    <main class="max-w-xl w-full mx-auto my-auto py-6 text-center space-y-6">
       
-      <!-- VIEW: HOME / LANDING -->
-      <section id="view-landing" class="p-4 md:p-10 max-w-5xl mx-auto w-full flex flex-col items-center justify-center flex-1">
-        <div class="w-full max-w-2xl bg-white dark:bg-dark-card rounded-3xl p-6 md:p-8 border border-slate-200 dark:border-dark-border shadow-xl text-center relative overflow-hidden">
-          <div class="w-full max-h-72 flex items-center justify-center overflow-hidden rounded-2xl mb-6 bg-slate-100 dark:bg-slate-800/50">
-            <img src="logo.png" alt="Retail Team Portal Banner" class="w-full h-auto max-h-72 object-contain" onerror="this.src='https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=800&q=80';">
+      <!-- Big Prominent Banner (logo.png) -->
+      <div class="relative mx-auto w-full max-w-sm sm:max-w-md px-2 flex items-center justify-center">
+        <div class="ambient-glow absolute inset-0 rounded-3xl bg-gradient-to-tr from-rose-500/30 via-indigo-500/30 to-sky-500/30 blur-3xl -z-10"></div>
+        
+        <div class="relative w-full rounded-3xl bg-white/90 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 backdrop-blur-xl p-3.5 sm:p-5 shadow-2xl flex flex-col items-center">
+          <img 
+            src="logo.png" 
+            alt="Retail FT Learning Squad Banner" 
+            class="w-full max-h-72 sm:max-h-80 object-contain rounded-2xl select-none transition-transform duration-300 hover:scale-[1.01]"
+            onerror="this.onerror=null; this.src='https://placehold.co/600x420/4f46e5/ffffff?text=logo.png+Banner'; document.getElementById('logoMissingNotice').classList.remove('hidden');"
+          >
+          
+          <div id="logoMissingNotice" class="hidden mt-2 p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-600 dark:text-amber-400 font-semibold">
+            <i class="ph ph-info mr-1"></i> Place your banner image as <code>logo.png</code> in the repository root.
           </div>
 
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-bold mb-3">
-            <i class="fa-solid fa-bolt"></i> High-Speed Local Offline Engine
+          <!-- Dynamic Status Badges Underneath Banner -->
+          <div class="flex flex-wrap items-center justify-center gap-2 pt-3">
+            <span class="text-[11px] font-bold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5 shadow-sm">
+              <i class="ph ph-hard-drive font-bold"></i> <span id="landingQuestionCountBadge">Loading Database...</span>
+            </span>
+            <span class="text-[11px] font-bold px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 flex items-center gap-1">
+              <i class="ph ph-sparkle"></i> Master Edition 2026
+            </span>
           </div>
+        </div>
+      </div>
 
-          <h2 class="text-2xl md:text-3xl font-heading font-extrabold text-slate-900 dark:text-white leading-tight mb-2">
-            Welcome to FT Answer Search Assistant
-          </h2>
-          <p class="text-slate-600 dark:text-slate-400 text-sm mb-6 max-w-lg mx-auto">
-            Offline intelligence platform designed to pinpoint functional test solutions instantly using advanced fuzzy candidate indexing.
+      <!-- Welcome Headline -->
+      <div class="space-y-2">
+        <h2 class="font-display text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+          Welcome to FT Answer Search Portal
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-md mx-auto leading-relaxed">
+          Instantly lookup retail test questions in milliseconds completely offline with precise percentage similarity scoring.
+        </p>
+      </div>
+
+      <!-- Compliance Disclaimer Card -->
+      <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-left flex items-start gap-3 shadow-sm">
+        <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+          <i class="ph ph-shield-warning text-lg font-bold"></i>
+        </div>
+        <div class="space-y-0.5">
+          <h3 class="text-xs font-black text-amber-700 dark:text-amber-300 uppercase tracking-wide">
+            Integrity & Compliance Notice
+          </h3>
+          <p class="text-[11px] text-amber-900/80 dark:text-amber-200/80 leading-normal font-medium">
+            Account leak and credential sharing constitutes a violation and will face corporate sanctions. Use this engine purely for private self-study & rehearsal.
           </p>
+        </div>
+      </div>
 
-          <div class="mb-6 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 text-left flex items-start gap-3">
-            <i class="fa-solid fa-triangle-exclamation text-amber-500 mt-1"></i>
-            <div class="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
-              <strong class="font-bold block mb-0.5">Integrity Notice:</strong>
-              This tool operates entirely locally on your device storage. Upload and search question banks responsibly as personal self-study materials.
+      <!-- Primary Action: Enter Engine -->
+      <div class="pt-1">
+        <button onclick="enterEngineDashboard()" class="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-indigo-600 via-indigo-600 to-rose-600 hover:from-indigo-500 hover:to-rose-500 active:scale-95 text-white text-sm sm:text-base font-bold rounded-2xl shadow-xl shadow-indigo-600/25 flex items-center justify-center gap-2.5 mx-auto transition-all">
+          <span>Enter FT Search Engine</span>
+          <i class="ph ph-arrow-right text-lg font-bold"></i>
+        </button>
+        <p class="text-[11px] text-slate-400 mt-2 font-medium">Runs 100% Locally on Device • No Internet Required</p>
+      </div>
+
+    </main>
+
+    <!-- Landing Footer -->
+    <footer class="py-3 text-center text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-1 max-w-4xl mx-auto text-[11px]">
+        <span>© 2026 brandretailcortex - FT Answer Search Engine. All rights reserved.</span>
+        <span class="text-slate-400 font-mono">v4.2 Multi-Part Scale</span>
+      </div>
+    </footer>
+  </section>
+
+
+  <!-- ==================== SCREEN 2: MAIN DASHBOARD & SEARCH ENGINE ==================== -->
+  <div id="view-app-root" class="hidden flex-1 flex-col min-h-screen">
+
+    <!-- Mobile Top Header Bar -->
+    <header class="lg:hidden flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40 backdrop-blur-md bg-white/90 dark:bg-slate-900/90">
+      <div class="flex items-center space-x-2.5">
+        <button onclick="returnToLanding()" class="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition" title="Return to Welcome Screen">
+          <i class="ph ph-arrow-left text-lg"></i>
+        </button>
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-rose-500 flex items-center justify-center text-white font-black text-sm shadow-sm">
+          <i class="ph ph-lightning font-bold"></i>
+        </div>
+        <div>
+          <h1 class="text-xs font-black tracking-tight text-slate-900 dark:text-white leading-none font-display">brandretailcortex</h1>
+          <p class="text-[10px] text-rose-500 font-semibold mt-0.5">FT Answer Engine • Offline</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button onclick="toggleTheme()" aria-label="Toggle Theme" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 active:scale-95 transition">
+          <i class="ph ph-moon text-base dark:hidden"></i>
+          <i class="ph ph-sun text-base hidden dark:block text-amber-400"></i>
+        </button>
+        <button id="mobileMenuBtn" aria-label="Open Navigation Menu" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 active:scale-95 transition">
+          <i class="ph ph-list text-lg"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden relative">
+
+      <!-- SIDEBAR NAVIGATION -->
+      <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col transform -translate-x-full lg:translate-x-0 lg:static transition-transform duration-250 ease-out shadow-2xl lg:shadow-none">
+        
+        <!-- Brand Logo / Header -->
+        <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-rose-500 flex items-center justify-center text-white font-black shadow-md shadow-indigo-600/20">
+              <i class="ph ph-lightning text-xl font-bold"></i>
+            </div>
+            <div>
+              <h1 class="font-display font-black text-base tracking-tight leading-tight text-slate-900 dark:text-white">brandretailcortex</h1>
+              <span class="text-[10px] font-bold text-rose-500 tracking-wider uppercase">Standalone Engine</span>
             </div>
           </div>
-
-          <button onclick="switchView('search')" class="w-full py-3.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-base shadow-lg shadow-blue-500/30 transition-all flex items-center justify-center gap-2">
-            <span>Launch Search Engine</span>
-            <i class="fa-solid fa-arrow-right"></i>
+          <button id="closeSidebarMobile" class="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white transition">
+            <i class="ph ph-x text-lg"></i>
           </button>
         </div>
-      </section>
 
-      <!-- VIEW: SEARCH ENGINE -->
-      <section id="view-search" class="p-4 md:p-8 max-w-5xl mx-auto w-full hidden flex-1 flex-col">
-        <div class="bg-white dark:bg-dark-card rounded-2xl p-5 md:p-6 border border-slate-200 dark:border-dark-border shadow-sm mb-6">
-          <div class="flex items-center justify-between mb-3">
-            <label class="text-sm font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
-              <i class="fa-solid fa-paste text-blue-500"></i> Paste Test Question Below
-            </label>
-            <div class="flex gap-2">
-              <button onclick="handleClipboardPaste()" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100">
-                <i class="fa-regular fa-clipboard mr-1"></i> Paste & Search
+        <!-- Local Storage Health & Question Counter -->
+        <div class="mx-4 my-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-800 space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-500 dark:text-slate-400 font-medium">Banked Questions</span>
+            <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+              <i class="ph ph-hard-drive mr-1"></i> Standalone
+            </span>
+          </div>
+          <div class="text-2xl font-black font-display text-slate-900 dark:text-white" id="sidebarQuestionCount">0</div>
+          
+          <div class="pt-1.5 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between text-[11px]">
+            <span class="text-slate-500 dark:text-slate-400">Persistence Status:</span>
+            <span id="persistenceStatusBadge" class="font-semibold text-emerald-500 flex items-center gap-1">
+              <i class="ph ph-shield-check"></i> Permanent Lock
+            </span>
+          </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
+          <button onclick="switchTab('search')" id="nav-search" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-150 bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
+            <i class="ph ph-magnifying-glass text-lg font-bold"></i>
+            <span>Search Answers</span>
+          </button>
+
+          <button onclick="switchTab('manage')" id="nav-manage" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all">
+            <i class="ph ph-database text-lg"></i>
+            <span>Manage Question Bank</span>
+          </button>
+
+          <button onclick="switchTab('guide')" id="nav-guide" class="nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all">
+            <i class="ph ph-lightbulb text-lg"></i>
+            <span>Guide & Instructions</span>
+          </button>
+
+          <div class="pt-2">
+            <button onclick="returnToLanding()" class="w-full flex items-center space-x-3 px-3.5 py-2 rounded-xl font-medium text-xs text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-indigo-600 transition">
+              <i class="ph ph-house text-base"></i>
+              <span>Back to Welcome Home</span>
+            </button>
+          </div>
+        </nav>
+
+        <!-- Bottom Controls & Peer Sharing -->
+        <div class="p-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
+          <!-- Split Multi-Part Download Button (Solves 25MB GitHub Limit) -->
+          <button onclick="exportSplitPartsForGithub()" class="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900 border border-indigo-200 dark:border-indigo-800/80 transition" title="Export divided JSONs for GitHub upload under 25MB">
+            <i class="ph ph-files font-bold"></i> Export 3-Part for GitHub (&lt;25MB)
+          </button>
+
+          <button id="themeToggle" onclick="toggleTheme()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800/70 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+            <span class="flex items-center gap-2">
+              <i class="ph ph-moon text-base dark:hidden"></i>
+              <i class="ph ph-sun text-base hidden dark:block text-amber-400"></i>
+              <span>Appearance Mode</span>
+            </span>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400" id="themeStatusText">Dark</span>
+          </button>
+
+          <div class="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
+            <div class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center justify-center gap-1.5">
+              <i class="ph ph-shield-check text-sm"></i>
+              <span>Anti-Delete Lock Active</span>
+            </div>
+            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-tight">Your bank data is securely persisted on this device.</p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Overlay backdrop for mobile -->
+      <div id="sidebarBackdrop" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden lg:hidden"></div>
+
+      <!-- MAIN VIEW AREA -->
+      <main class="flex-1 overflow-y-auto bg-slate-100/60 dark:bg-slate-950 p-4 md:p-6 lg:p-8">
+
+        <!-- ==================== TAB 1: SEARCH / CARI JAWABAN ==================== -->
+        <section id="view-search" class="max-w-4xl mx-auto space-y-5">
+          
+          <!-- Top Action Bar -->
+          <div class="bg-gradient-to-r from-indigo-950 via-slate-900 to-slate-900 border border-indigo-500/30 text-white p-5 rounded-2xl shadow-xl shadow-indigo-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-bold bg-rose-500 text-white mb-1.5">
+                <i class="ph ph-lightning font-bold"></i> INSTANT FT LOOKUP
+              </div>
+              <h2 class="text-xl md:text-2xl font-black font-display tracking-tight">Lookup Answers & Similarity Accuracy</h2>
+              <p class="text-xs text-slate-300 mt-0.5">Paste any sentence snippet or keywords from your quiz. Matches appear in &lt;50ms.</p>
+            </div>
+            <div class="flex items-center gap-2 self-start sm:self-auto">
+              <button onclick="pasteFromClipboard()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-md shadow-indigo-600/30 transition">
+                <i class="ph ph-clipboard-text text-base"></i>
+                <span>Paste Question</span>
               </button>
-              <button onclick="clearSearchBox()" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200">
+              <button onclick="clearSearchInput()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl border border-slate-700 transition">
                 Clear
               </button>
             </div>
           </div>
 
-          <textarea id="search-input" rows="3" placeholder="Copy-paste the question here and press Enter..." class="w-full p-3.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-dark-border focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white transition-all"></textarea>
-
-          <div class="mt-4 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-dark-border">
-            <div class="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">
-              <label class="flex items-center gap-1.5 cursor-pointer">
-                <input type="checkbox" id="realtime-toggle" class="rounded text-blue-600 focus:ring-0">
-                <span>Realtime Detection</span>
-              </label>
-              <div class="flex items-center gap-1">
-                <span>Min Match:</span>
-                <select id="min-accuracy-select" class="bg-transparent font-bold text-blue-600 dark:text-blue-400 focus:outline-none">
-                  <option value="30">30%</option>
-                  <option value="40" selected>40%</option>
-                  <option value="50">50%</option>
-                  <option value="60">60%</option>
-                </select>
+          <!-- Search Input Box -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 md:p-5 shadow-sm space-y-3.5">
+            <div class="relative">
+              <textarea id="searchQueryInput" rows="3" placeholder="Paste or type test question here... (e.g. What is OOS definition, bread return deadline, cashier tolerance balance. Press Enter to search)" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 text-sm md:text-base text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y transition"></textarea>
+              
+              <div class="absolute right-3 bottom-3 text-[11px] text-slate-400 font-medium">
+                <span id="charCounter">0 chars</span>
               </div>
             </div>
 
-            <button onclick="triggerSearchNow()" id="btn-search-manual" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md shadow-blue-500/20 flex items-center gap-2">
-              <i class="fa-solid fa-magnifying-glass"></i>
-              <span>Find Answer</span>
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+              <div class="flex items-center gap-4">
+                <label class="text-xs text-slate-600 dark:text-slate-300 flex items-center gap-1.5 cursor-pointer font-medium select-none">
+                  <input type="checkbox" id="realtimeToggle" class="rounded text-indigo-600 focus:ring-indigo-500">
+                  <span>Realtime Match (Live typing search)</span>
+                </label>
+                <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                  <span>Threshold:</span>
+                  <select id="minAccuracySelect" class="bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-700 dark:text-slate-200 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                    <option value="20">20% (Broad)</option>
+                    <option value="40" selected>40% (Recommended)</option>
+                    <option value="60">60% (Strict)</option>
+                    <option value="75">75% (Precise)</option>
+                  </select>
+                </div>
+              </div>
+
+              <button id="searchSubmitBtn" onclick="triggerSearchWithAnimation()" class="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs md:text-sm font-bold rounded-xl flex items-center justify-center gap-2 shadow-md shadow-indigo-600/30 transition">
+                <i id="searchBtnIcon" class="ph ph-magnifying-glass font-bold text-base"></i>
+                <span id="searchBtnText">Search Answer Now</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Search Results Section -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between px-1">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">Matching Results</span>
+                <span id="resultsCountBadge" class="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">0 results</span>
+              </div>
+              <span id="executionTime" class="text-[11px] text-slate-400 font-mono">0 ms</span>
+            </div>
+
+            <div id="resultsContainer" class="space-y-3">
+              <div class="p-8 text-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40">
+                <i class="ph ph-magnifying-glass text-3xl text-slate-400 mb-2"></i>
+                <p class="text-sm text-slate-600 dark:text-slate-300 font-semibold">No active search query.</p>
+                <p class="text-xs text-slate-400 mt-1">Paste your question above and click <strong>"Search Answer Now"</strong> or hit Enter.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 2: MANAGE BANK & UPLOAD ==================== -->
+        <section id="view-manage" class="max-w-4xl mx-auto space-y-6 hidden">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h2 class="text-2xl font-black font-display tracking-tight text-slate-900 dark:text-white">Question Bank & Data Management</h2>
+              <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400">All data is kept <strong>permanently in this device's IndexedDB</strong> without quota restrictions.</p>
+            </div>
+            <button onclick="checkMasterDBUpdates(true)" class="self-start sm:self-auto px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 flex items-center gap-1.5 transition">
+              <i class="ph ph-arrows-clockwise font-bold"></i> Sync Master DB
             </button>
           </div>
-        </div>
 
-        <!-- SEARCH STATUS & RESULTS -->
-        <div class="flex items-center justify-between mb-3 px-1">
-          <div class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-            <span>Matching Results</span>
-            <span id="results-count" class="px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-[10px] text-slate-700 dark:text-slate-300">0 Items</span>
-          </div>
-          <span id="search-latency" class="text-xs text-slate-400 font-mono">0 ms</span>
-        </div>
-
-        <!-- SCANNING ANIMATION -->
-        <div id="search-loader" class="hidden my-8 text-center">
-          <div class="inline-block p-4 rounded-2xl bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border shadow-lg">
-            <i class="fa-solid fa-circle-notch fa-spin text-3xl text-blue-600 mb-2"></i>
-            <p class="text-xs font-bold text-slate-700 dark:text-slate-300">Scanning indexed candidate vectors...</p>
-          </div>
-        </div>
-
-        <div id="results-container" class="space-y-3">
-          <div class="p-8 text-center text-slate-400 text-sm bg-white/50 dark:bg-dark-card/50 rounded-2xl border border-dashed border-slate-200 dark:border-dark-border">
-            <i class="fa-regular fa-folder-open text-3xl mb-2 text-slate-300 dark:text-slate-600"></i>
-            <p>Paste a question above to find accurate answers instantly.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- VIEW: MANAGE DATABASE -->
-      <section id="view-manage" class="p-4 md:p-8 max-w-5xl mx-auto w-full hidden flex-1 flex-col">
-        <div class="bg-white dark:bg-dark-card rounded-2xl p-6 border border-slate-200 dark:border-dark-border shadow-sm mb-6">
-          <h3 class="text-lg font-heading font-bold text-slate-900 dark:text-white mb-1">Upload New Question Bank</h3>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Support formats: Excel (.xlsx, .xls), CSV, PDF, and JSON. Files are safely merged without deleting existing questions.</p>
-          
-          <div class="border-2 border-dashed border-slate-200 dark:border-dark-border hover:border-blue-500 rounded-2xl p-6 text-center cursor-pointer bg-slate-50 dark:bg-slate-900/50" onclick="document.getElementById('file-upload-input').click()">
-            <input type="file" id="file-upload-input" class="hidden" accept=".xlsx,.xls,.csv,.pdf,.json" onchange="handleFileUpload(event)">
-            <i class="fa-solid fa-cloud-arrow-up text-3xl text-blue-500 mb-2"></i>
-            <p class="text-sm font-bold text-slate-700 dark:text-slate-200">Click to Browse File</p>
-            <p class="text-xs text-slate-400 mt-1">Parses directly in local client memory</p>
-          </div>
-        </div>
-
-        <!-- EXPORT / IMPORT STREAMING CARDS -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div class="bg-white dark:bg-dark-card rounded-2xl p-5 border border-slate-200 dark:border-dark-border">
-            <h4 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 mb-2">
-              <i class="fa-solid fa-file-export text-blue-500"></i> Stream Export Master JSON
-            </h4>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Download entire question bank using streaming chunks to prevent browser freeze or blank tabs.</p>
-            <button onclick="startChunkedExport()" class="w-full py-2.5 px-4 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 text-xs font-bold flex items-center justify-center gap-2">
-              <i class="fa-solid fa-download"></i> Download data-master.json
+          <!-- Multi-Part GitHub Helper Box -->
+          <div class="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/25 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+            <div class="flex items-start gap-3">
+              <div class="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+                <i class="ph ph-github-logo text-xl font-bold"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-black uppercase tracking-wide text-indigo-700 dark:text-indigo-300">GitHub 25MB Upload Solution</h4>
+                <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-normal">
+                  Click the button on the right to download 3 files (<code class="text-indigo-500 font-bold">data-part1.json</code>, <code class="text-indigo-500 font-bold">data-part2.json</code>, <code class="text-indigo-500 font-bold">data-part3.json</code>). Drag and drop them directly to GitHub without hitting the 25MB error!
+                </p>
+              </div>
+            </div>
+            <button onclick="exportSplitPartsForGithub()" class="shrink-0 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-600/30 transition">
+              Download 3 Parts Now
             </button>
           </div>
 
-          <div class="bg-white dark:bg-dark-card rounded-2xl p-5 border border-slate-200 dark:border-dark-border">
-            <h4 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 mb-2">
-              <i class="fa-solid fa-file-import text-purple-500"></i> Safe Batch Import JSON
-            </h4>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Import large backup JSON files safely in iterative chunks without crashing mobile RAM.</p>
-            <input type="file" id="batch-import-input" class="hidden" accept=".json" onchange="handleBatchImport(event)">
-            <button onclick="document.getElementById('batch-import-input').click()" class="w-full py-2.5 px-4 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 hover:bg-purple-100 text-xs font-bold flex items-center justify-center gap-2">
-              <i class="fa-solid fa-upload"></i> Select JSON to Import
-            </button>
-          </div>
-        </div>
+          <!-- Upload Container -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 md:p-6 shadow-sm space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <i class="ph ph-file-arrow-up text-indigo-500 text-lg"></i>
+                <span>Append New Question Files (Excel / CSV / PDF / JSON)</span>
+              </h3>
+              <span class="text-[11px] font-bold text-emerald-500 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                Non-Destructive Append
+              </span>
+            </div>
 
-        <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 flex items-center gap-3">
-          <i class="fa-solid fa-lock text-emerald-500 text-lg"></i>
+            <!-- Drag and drop zone -->
+            <div id="dropZone" class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-500 rounded-2xl p-7 text-center bg-slate-50/50 dark:bg-slate-950/50 transition cursor-pointer flex flex-col items-center justify-center">
+              <input type="file" id="fileUploadInput" accept=".xlsx, .xls, .csv, .pdf, .json, .txt" multiple class="hidden">
+              <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-2.5 shadow-inner">
+                <i class="ph ph-cloud-arrow-up text-2xl font-bold"></i>
+              </div>
+              <p class="text-sm font-bold text-slate-800 dark:text-white mb-0.5">Drag & Drop Files Here or Click to Select</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md">Supports Excel spreadsheets (.xlsx, .xls), CSV, study PDFs, and JSON backups.</p>
+              
+              <div class="mt-3.5 flex flex-wrap gap-2 justify-center">
+                <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded">.xlsx</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded">.xls</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded">.csv</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded">.pdf</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded">.json</span>
+              </div>
+            </div>
+
+            <!-- Progress Bar Indicator -->
+            <div id="uploadStatusBox" class="hidden p-4 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2">
+              <div class="flex items-center justify-between text-xs font-semibold">
+                <span id="uploadStatusMessage" class="text-indigo-500 flex items-center gap-1.5">
+                  <i class="ph ph-spinner animate-spin"></i> Ingesting and persisting records...
+                </span>
+                <span id="uploadPercentage" class="text-slate-500">0%</span>
+              </div>
+              <div class="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                <div id="uploadProgressBar" class="bg-indigo-600 h-full w-0 transition-all duration-200"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bank Explorer -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 class="text-sm font-bold text-slate-900 dark:text-white">Active Question Bank Index</h3>
+                <p class="text-xs text-slate-400">Total verified items in local memory: <span id="bankTotalCount" class="font-bold text-indigo-500">0</span></p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="requestPermanentStoragePrompt()" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold rounded-lg text-slate-700 dark:text-slate-300 transition">
+                  <i class="ph ph-shield-check"></i> Lock Persistent Storage
+                </button>
+              </div>
+            </div>
+
+            <div class="relative">
+              <i class="ph ph-funnel absolute left-3 top-3 text-slate-400"></i>
+              <input type="text" id="bankFilterInput" placeholder="Filter questions by keywords..." class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs md:text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+            </div>
+
+            <div id="bankListContainer" class="space-y-2.5 max-h-[460px] overflow-y-auto pr-1"></div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 3: GUIDES & INSTRUCTIONS ==================== -->
+        <section id="view-guide" class="max-w-3xl mx-auto space-y-5 hidden">
           <div>
-            <h5 class="text-xs font-bold text-emerald-900 dark:text-emerald-300">Permanent Anti-Deletion Safeguard Active</h5>
-            <p class="text-[11px] text-emerald-700 dark:text-emerald-400">Database reset buttons have been completely disabled to eliminate accidental data wipes.</p>
+            <h2 class="text-2xl font-black font-display tracking-tight text-slate-900 dark:text-white">User Guide & Exam Tips</h2>
+            <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400">Maximize speed and confidence during the Functional Test.</p>
           </div>
-        </div>
-      </section>
 
-      <!-- FOOTER -->
-      <footer class="mt-auto py-5 border-t border-slate-200 dark:border-dark-border text-center text-xs text-slate-400">
-        &copy; 2026 brandretailcortex - FT Answer Search Engine. All rights reserved.
-      </footer>
-    </main>
-  </div>
+          <div class="space-y-3.5">
+            <div class="bg-white dark:bg-slate-900 p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2">
+              <div class="flex items-center gap-2 text-indigo-500 font-bold text-sm">
+                <i class="ph ph-device-mobile text-lg"></i>
+                <span>1. 100% Offline Standalone Architecture</span>
+              </div>
+              <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                All 160,000+ questions are held directly inside your phone's browser memory via <strong>IndexedDB Persistent Storage</strong>. There is no central server to crash or lag during nationwide peak testing hours.
+              </p>
+            </div>
 
-  <!-- BATCH PROGRESS MODAL -->
-  <div id="progress-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-dark-card max-w-sm w-full rounded-2xl p-6 border border-slate-200 dark:border-dark-border text-center shadow-2xl">
-      <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-3 text-xl">
-        <i class="fa-solid fa-arrows-rotate fa-spin" id="modal-spinner"></i>
-      </div>
-      <h4 class="text-base font-bold text-slate-900 dark:text-white mb-1" id="modal-title">Processing Master Data</h4>
-      <p class="text-xs text-slate-500 dark:text-slate-400 mb-4" id="modal-desc">Streaming items in memory-friendly batches...</p>
-      
-      <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden mb-2">
-        <div id="modal-progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-150" style="width: 0%"></div>
-      </div>
-      <span class="text-xs font-mono font-bold text-blue-600 dark:text-blue-400" id="modal-progress-text">0%</span>
+            <div class="bg-white dark:bg-slate-900 p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2">
+              <div class="flex items-center gap-2 text-amber-500 font-bold text-sm">
+                <i class="ph ph-gauge text-lg"></i>
+                <span>2. Tri-Color Accuracy Badges</span>
+              </div>
+              <div class="text-xs text-slate-600 dark:text-slate-300 space-y-1.5">
+                <div><strong class="text-emerald-500">&gt;= 80% (Green):</strong> High confidence match. Direct hit on question syntax.</div>
+                <div><strong class="text-amber-500">60% - 79% (Yellow):</strong> Moderate similarity. Check question options against answer context.</div>
+                <div><strong class="text-rose-500">&lt; 60% (Red):</strong> Partial or keyword-only match.</div>
+              </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 p-4 md:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2">
+              <div class="flex items-center gap-2 text-purple-500 font-bold text-sm">
+                <i class="ph ph-shield-check text-lg"></i>
+                <span>3. Permanent Storage Anti-Wipe Protection</span>
+              </div>
+              <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                The engine systematically claims <code>navigator.storage.persist()</code> permission so Android and iOS browsers will never automatically purge your cached question database.
+              </p>
+            </div>
+          </div>
+        </section>
+
+      </main>
     </div>
+
+    <!-- Global Toast Container -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Multi-Part Auto-Hydration Modal (Initial First Launch for Buyers) -->
+    <div id="syncModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-7 max-w-sm w-full text-center space-y-4 shadow-2xl">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center animate-pulse">
+          <i class="ph ph-cloud-arrow-down text-3xl font-bold"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-black font-display text-slate-900 dark:text-white" id="syncModalTitle">Initializing Master Question Bank</h3>
+          <p id="syncModalDesc" class="text-xs text-slate-500 dark:text-slate-400 mt-1">Downloading and locking multi-part data into your device memory...</p>
+        </div>
+        <div class="w-full bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
+          <div id="syncModalProgress" class="bg-indigo-600 h-full w-0 transition-all duration-300"></div>
+        </div>
+        <p class="text-[11px] text-slate-400 font-mono" id="syncModalPct">0%</p>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-3 px-6 text-center text-xs text-slate-500 dark:text-slate-400 z-30">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-1.5 max-w-6xl mx-auto">
+        <span>© 2026 brandretailcortex - FT Answer Search Engine. All rights reserved.</span>
+        <div class="flex items-center space-x-3 text-[11px]">
+          <span class="inline-flex items-center gap-1 text-emerald-500 font-semibold">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Standalone Engine Active
+          </span>
+          <span class="text-slate-400 font-mono">v4.2 Multi-Part Scale</span>
+        </div>
+      </div>
+    </footer>
+
   </div>
 
+  <!-- JAVASCRIPT CORE LOGIC -->
   <script>
-    /* =========================================================
-       1. DATABASE ARCHITECTURE (INDEXEDDB)
-       ========================================================= */
-    const DB_NAME = 'brandretailcortex_db';
-    const DB_VERSION = 1;
-    const STORE_NAME = 'questions_store';
-    let dbInstance = null;
+    /**
+     * brandretailcortex Standalone FT Engine v4.2 Multi-Part Scale
+     * - Automatic multi-part loading: data-part1.json, data-part2.json, data-part3.json (Bypasses GitHub 25MB limit)
+     * - Multi-threaded Inline Web Worker with Inverted Index
+     * - Safe Chunked Ingestion & Zero-Wipe Permanent Storage
+     */
 
-    function openDatabase() {
+    const DB_NAME = 'brandretailcortex_standalone_db';
+    const DB_VERSION = 1;
+    const STORE_NAME = 'ft_questions';
+    let dbInstance = null;
+    let activeQuestions = [];
+    let searchWorker = null;
+    let isWorkerSearching = false;
+
+    // Default starter fallback
+    const DEFAULT_FALLBACK_SEED = [
+      {
+        id: 'seed-1',
+        soal: 'Apa yang dimaksud dengan OOS pada operasional toko Alfamart?',
+        jawaban: 'Out Of Stock (Kondisi kekosongan stok barang di rak pajangan maupun di gudang toko)',
+        kategori: 'Store Operations',
+        sheet: 'Modul Toko 2026'
+      },
+      {
+        id: 'seed-2',
+        soal: 'Berapa batas toleransi selisih kasir saat proses cloting per shift?',
+        jawaban: 'Rp 0 (Toleransi selisih kasir adalah nol rupiah atau sesuai SOP master kas)',
+        kategori: 'Cashier & Finance',
+        sheet: 'SOP Kasir'
+      },
+      {
+        id: 'seed-3',
+        soal: 'Metode penataan barang di rak display Alfamart yang memprioritaskan barang lebih cepat kedaluwarsa disebut...',
+        jawaban: 'FEFO (First Expired First Out)',
+        kategori: 'Planogram & Display',
+        sheet: 'Planogram Toko'
+      },
+      {
+        id: 'seed-4',
+        soal: 'Tindakan yang harus dilakukan jika ada barang mendekati batas exp date (MBD)?',
+        jawaban: 'Tarik dari rak display, pisahkan ke area retur toko, dan proses pembuatan BKE (Bukti Kirim Retur) ke DC',
+        kategori: 'Return & Expired',
+        sheet: 'SOP Retur Barang'
+      }
+    ];
+
+    // --- Web Worker Engine ---
+    function initSearchWorker() {
+      const workerCode = `
+        let items = [];
+        let invertedIndex = new Map();
+
+        function sanitizeText(str) {
+          if (!str) return '';
+          return String(str)
+            .toLowerCase()
+            .replace(/[\\n\\r\\t]+/g, ' ')
+            .replace(/[^a-z0-9\\s]/gi, ' ')
+            .replace(/\\s+/g, ' ')
+            .trim();
+        }
+
+        function extractTokens(str) {
+          const s = sanitizeText(str);
+          if (!s) return [];
+          return s.split(' ').filter(w => w.length >= 3);
+        }
+
+        function buildInvertedIndex() {
+          invertedIndex.clear();
+          const len = items.length;
+          for (let i = 0; i < len; i++) {
+            const tokens = extractTokens(items[i].soal);
+            const seen = new Set();
+            for (let j = 0; j < tokens.length; j++) {
+              const word = tokens[j];
+              if (!seen.has(word)) {
+                seen.add(word);
+                let set = invertedIndex.get(word);
+                if (!set) {
+                  set = new Set();
+                  invertedIndex.set(word, set);
+                }
+                set.add(i);
+              }
+            }
+          }
+        }
+
+        function generateBigrams(str) {
+          const s = sanitizeText(str);
+          const map = new Map();
+          for (let i = 0; i < s.length - 1; i++) {
+            const gram = s.substring(i, i + 2);
+            map.set(gram, (map.get(gram) || 0) + 1);
+          }
+          return map;
+        }
+
+        function calculateDice(s1, s2) {
+          if (s1 === s2) return 1.0;
+          if (s1.length < 2 || s2.length < 2) return s1 === s2 ? 1.0 : 0.0;
+
+          if (s1.includes(s2) || s2.includes(s1)) {
+            const ratio = Math.min(s1.length, s2.length) / Math.max(s1.length, s2.length);
+            if (ratio > 0.5) return 0.94;
+          }
+
+          const p1 = generateBigrams(s1);
+          const p2 = generateBigrams(s2);
+
+          let matches = 0;
+          p1.forEach((count, key) => {
+            if (p2.has(key)) matches += Math.min(count, p2.get(key));
+          });
+
+          const total = (s1.length - 1) + (s2.length - 1);
+          return total === 0 ? 0 : (2.0 * matches) / total;
+        }
+
+        function calculateTokenJaccard(tokens1, tokens2) {
+          if (tokens1.length === 0 || tokens2.length === 0) return 0;
+          const set2 = new Set(tokens2);
+          let overlap = 0;
+          for (let i = 0; i < tokens1.length; i++) {
+            if (set2.has(tokens1[i])) overlap++;
+          }
+          return overlap / Math.max(tokens1.length, 1);
+        }
+
+        self.onmessage = function(e) {
+          const msg = e.data;
+
+          if (msg.type === 'SET_DATA') {
+            items = msg.items || [];
+            buildInvertedIndex();
+            self.postMessage({ type: 'DATA_READY', count: items.length });
+            return;
+          }
+
+          if (msg.type === 'SEARCH') {
+            const query = msg.query || '';
+            const minAccuracy = msg.minAccuracy || 0.4;
+            const t0 = performance.now();
+
+            const cleanQuery = sanitizeText(query);
+            const qTokens = extractTokens(cleanQuery);
+
+            if (!cleanQuery || items.length === 0) {
+              self.postMessage({ type: 'SEARCH_RESULTS', results: [], duration: 0 });
+              return;
+            }
+
+            const candidateScores = new Map();
+            for (let i = 0; i < qTokens.length; i++) {
+              const matchedIndexes = invertedIndex.get(qTokens[i]);
+              if (matchedIndexes) {
+                matchedIndexes.forEach(idx => {
+                  candidateScores.set(idx, (candidateScores.get(idx) || 0) + 1);
+                });
+              }
+            }
+
+            let candidateIndexes = [];
+            if (candidateScores.size > 0) {
+              candidateIndexes = Array.from(candidateScores.entries())
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 1500)
+                .map(pair => pair[0]);
+            } else {
+              const sampleLimit = Math.min(items.length, 2500);
+              for (let i = 0; i < sampleLimit; i++) candidateIndexes.push(i);
+            }
+
+            const matches = [];
+            const cLen = candidateIndexes.length;
+            for (let i = 0; i < cLen; i++) {
+              const idx = candidateIndexes[i];
+              const item = items[idx];
+              const cleanTarget = sanitizeText(item.soal);
+              const tTokens = extractTokens(cleanTarget);
+
+              const dice = calculateDice(cleanQuery, cleanTarget);
+              const jaccard = calculateTokenJaccard(qTokens, tTokens);
+              const score = (dice * 0.45) + (jaccard * 0.55);
+
+              if (score >= minAccuracy) {
+                matches.push({
+                  item: item,
+                  percent: Math.min(Math.round(score * 100), 100)
+                });
+              }
+            }
+
+            matches.sort((a, b) => b.percent - a.percent);
+            const topResults = matches.slice(0, 15);
+            const t1 = performance.now();
+
+            self.postMessage({
+              type: 'SEARCH_RESULTS',
+              results: topResults,
+              duration: Math.round(t1 - t0)
+            });
+          }
+        };
+      `;
+
+      const blob = new Blob([workerCode], { type: 'application/javascript' });
+      searchWorker = new Worker(URL.createObjectURL(blob));
+
+      searchWorker.onmessage = function(e) {
+        const data = e.data;
+        if (data.type === 'SEARCH_RESULTS') {
+          finalizeSearch(data.results, data.duration);
+        }
+      };
+    }
+
+    function syncWorkerData() {
+      if (searchWorker && activeQuestions.length > 0) {
+        searchWorker.postMessage({
+          type: 'SET_DATA',
+          items: activeQuestions
+        });
+      }
+    }
+
+    // --- Screen Navigation ---
+    function enterEngineDashboard() {
+      document.getElementById('view-landing').classList.add('hidden');
+      const appRoot = document.getElementById('view-app-root');
+      appRoot.classList.remove('hidden');
+      appRoot.classList.add('flex');
+      window.scrollTo(0, 0);
+    }
+
+    function returnToLanding() {
+      document.getElementById('view-app-root').classList.add('hidden');
+      document.getElementById('view-app-root').classList.remove('flex');
+      document.getElementById('view-landing').classList.remove('hidden');
+      closeMobileSidebar();
+      window.scrollTo(0, 0);
+    }
+
+    // --- Storage & IndexedDB Setup ---
+    async function requestStoragePersistence() {
+      const badge = document.getElementById('persistenceStatusBadge');
+      if (navigator.storage && navigator.storage.persist) {
+        try {
+          const isPersisted = await navigator.storage.persisted();
+          if (isPersisted) {
+            if (badge) badge.innerHTML = '<i class="ph ph-check-circle text-emerald-500 font-bold"></i> <span class="text-emerald-500">Permanent Lock</span>';
+            return;
+          }
+          const granted = await navigator.storage.persist();
+          if (granted && badge) {
+            badge.innerHTML = '<i class="ph ph-check-circle text-emerald-500 font-bold"></i> <span class="text-emerald-500">Permanent Lock</span>';
+          }
+        } catch (e) {}
+      }
+    }
+
+    async function requestPermanentStoragePrompt() {
+      if (navigator.storage && navigator.storage.persist) {
+        const granted = await navigator.storage.persist();
+        if (granted) {
+          showToast('Permanent storage successfully locked by browser!', 'success');
+        } else {
+          showToast('Standard local storage active.', 'info');
+        }
+        await requestStoragePersistence();
+      }
+    }
+
+    function initIndexedDB() {
       return new Promise((resolve, reject) => {
         if (dbInstance) return resolve(dbInstance);
+
         const req = indexedDB.open(DB_NAME, DB_VERSION);
         req.onupgradeneeded = (e) => {
           const db = e.target.result;
           if (!db.objectStoreNames.contains(STORE_NAME)) {
-            const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-            store.createIndex('question', 'question', { unique: false });
+            const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+            store.createIndex('soal', 'soal', { unique: false });
           }
         };
         req.onsuccess = (e) => {
@@ -305,517 +838,699 @@
       });
     }
 
-    async function getStoredCount() {
-      const db = await openDatabase();
-      return new Promise((resolve) => {
+    async function loadQuestionsFromStorage() {
+      const db = await initIndexedDB();
+      return new Promise((resolve, reject) => {
         const tx = db.transaction(STORE_NAME, 'readonly');
         const store = tx.objectStore(STORE_NAME);
-        const req = store.count();
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => resolve(0);
+        const req = store.getAll();
+
+        req.onsuccess = async () => {
+          let items = req.result || [];
+          if (items.length === 0) {
+            // First time launch: Auto-hydrate multi-part files
+            const hydrated = await checkMasterDBUpdates(false);
+            if (!hydrated) {
+              await saveBulkToStorage(DEFAULT_FALLBACK_SEED);
+              activeQuestions = [...DEFAULT_FALLBACK_SEED];
+            }
+          } else {
+            activeQuestions = items;
+          }
+          updateCounters();
+          renderBankList();
+          syncWorkerData();
+          resolve(activeQuestions);
+        };
+        req.onerror = (e) => reject(e);
       });
     }
 
-    async function updateStatBadges() {
-      const count = await getStoredCount();
-      document.getElementById('stat-total-q').textContent = count.toLocaleString();
-    }
+    async function saveBulkToStorage(items) {
+      const db = await initIndexedDB();
+      const batchSize = 3500;
+      let offset = 0;
 
-    /* =========================================================
-       2. WEB WORKER FOR SEARCH & INVERTED INDEXING
-       ========================================================= */
-    let searchWorker = null;
-
-    function initWebWorker() {
-      const workerCode = `
-        let questionData = [];
-        let invertedIndex = new Map();
-
-        function tokenize(text) {
-          if (!text) return [];
-          return text.toLowerCase().replace(/[^a-z0-9\\s]/g, ' ').split(/\\s+/).filter(w => w.length >= 3);
-        }
-
-        function buildInvertedIndex() {
-          invertedIndex.clear();
-          for (let i = 0; i < questionData.length; i++) {
-            const tokens = tokenize(questionData[i].question);
-            for (let t = 0; t < tokens.length; t++) {
-              const token = tokens[t];
-              if (!invertedIndex.has(token)) {
-                invertedIndex.set(token, []);
-              }
-              const list = invertedIndex.get(token);
-              if (list.length < 500) {
-                list.push(i);
-              }
-            }
-          }
-        }
-
-        function diceSorensen(s1, s2) {
-          if (!s1 || !s2) return 0;
-          if (s1 === s2) return 1.0;
-          const clean1 = s1.toLowerCase().replace(/\\s+/g, '');
-          const clean2 = s2.toLowerCase().replace(/\\s+/g, '');
-          if (clean1.length < 2 || clean2.length < 2) return clean1 === clean2 ? 1 : 0;
-
-          const bigrams1 = new Map();
-          for (let i = 0; i < clean1.length - 1; i++) {
-            const bigram = clean1.substr(i, 2);
-            bigrams1.set(bigram, (bigrams1.get(bigram) || 0) + 1);
-          }
-
-          let intersection = 0;
-          for (let i = 0; i < clean2.length - 1; i++) {
-            const bigram = clean2.substr(i, 2);
-            const count = bigrams1.get(bigram) || 0;
-            if (count > 0) {
-              bigrams1.set(bigram, count - 1);
-              intersection++;
-            }
-          }
-          return (2.0 * intersection) / ((clean1.length - 1) + (clean2.length - 1));
-        }
-
-        self.onmessage = function(e) {
-          const { action, payload } = e.data;
-          if (action === 'LOAD_DATA') {
-            questionData = payload;
-            buildInvertedIndex();
-            self.postMessage({ action: 'DATA_LOADED', count: questionData.length });
-          } else if (action === 'SEARCH') {
-            const { query, minScore, topK } = payload;
-            const qTokens = tokenize(query);
-            const candidateIndices = new Set();
-
-            if (qTokens.length > 0) {
-              for (const t of qTokens) {
-                const list = invertedIndex.get(t);
-                if (list) {
-                  for (let i = 0; i < list.length; i++) {
-                    candidateIndices.add(list[i]);
-                    if (candidateIndices.size >= 1500) break;
-                  }
-                }
-                if (candidateIndices.size >= 1500) break;
-              }
-            }
-
-            const candidates = candidateIndices.size > 0 
-              ? Array.from(candidateIndices).map(idx => questionData[idx]) 
-              : questionData.slice(0, 1000);
-
-            const results = [];
-            for (let i = 0; i < candidates.length; i++) {
-              const item = candidates[i];
-              const score = diceSorensen(query, item.question);
-              if (score >= minScore) {
-                results.push({
-                  question: item.question,
-                  answer: item.answer || 'No direct answer listed',
-                  score: Math.round(score * 100)
-                });
-              }
-            }
-
-            results.sort((a, b) => b.score - a.score);
-            self.postMessage({ action: 'SEARCH_RESULTS', results: results.slice(0, topK || 15) });
-          }
-        };
-      `;
-
-      const blob = new Blob([workerCode], { type: 'application/javascript' });
-      searchWorker = new Worker(URL.createObjectURL(blob));
-
-      searchWorker.onmessage = function(e) {
-        const { action, results } = e.data;
-        if (action === 'SEARCH_RESULTS') {
-          renderSearchResults(results);
-        }
-      };
-    }
-
-    async function syncWorkerData() {
-      const db = await openDatabase();
-      const tx = db.transaction(STORE_NAME, 'readonly');
-      const store = tx.objectStore(STORE_NAME);
-      const req = store.getAll();
-      req.onsuccess = () => {
-        searchWorker.postMessage({ action: 'LOAD_DATA', payload: req.result });
-      };
-    }
-
-    /* =========================================================
-       3. CRUCIAL FIX: STREAMING / CHUNKED EXPORT & IMPORT
-       ========================================================= */
-
-    // Export 160.000 data without browser crashing or blank tabs
-    async function startChunkedExport() {
-      showModal("Exporting Master JSON", "Reading IndexedDB records safely...", 5);
-      const db = await openDatabase();
-      
-      const chunks = ['['];
-      let isFirst = true;
-      let processed = 0;
-      const total = await getStoredCount();
-
-      if (total === 0) {
-        hideModal();
-        alert("Database is currently empty. Nothing to export.");
-        return;
-      }
-
-      const tx = db.transaction(STORE_NAME, 'readonly');
-      const store = tx.objectStore(STORE_NAME);
-      const cursorReq = store.openCursor();
-
-      cursorReq.onsuccess = (e) => {
-        const cursor = e.target.result;
-        if (cursor) {
-          const item = { question: cursor.value.question, answer: cursor.value.answer };
-          const jsonStr = (isFirst ? '' : ',') + JSON.stringify(item);
-          chunks.push(jsonStr);
-          isFirst = false;
-          processed++;
-
-          if (processed % 2500 === 0) {
-            const pct = Math.round((processed / total) * 90);
-            updateModalProgress(pct, `Exporting: ${processed.toLocaleString()} / ${total.toLocaleString()} rows`);
-          }
-          cursor.continue();
-        } else {
-          chunks.push(']');
-          updateModalProgress(95, "Building secure download file...");
-
-          setTimeout(() => {
-            const blob = new Blob(chunks, { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'data-master.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            hideModal();
-          }, 300);
-        }
-      };
-
-      cursorReq.onerror = () => {
-        hideModal();
-        alert("Failed to export database.");
-      };
-    }
-
-    // Import large JSON files in iterative safe batches
-    function handleBatchImport(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      showModal("Reading JSON File", "Loading file buffer...", 10);
-      const reader = new FileReader();
-
-      reader.onload = async (evt) => {
-        try {
-          updateModalProgress(25, "Parsing JSON array structures...");
-          const parsed = JSON.parse(evt.target.result);
-          if (!Array.isArray(parsed)) throw new Error("JSON must contain an array of question-answer objects.");
-
-          await ingestBatchArray(parsed);
-        } catch (err) {
-          hideModal();
-          alert("Import Error: " + err.message);
-        }
-      };
-
-      reader.readAsText(file);
-      e.target.value = '';
-    }
-
-    async function ingestBatchArray(items) {
-      const db = await openDatabase();
-      const total = items.length;
-      const batchSize = 3000;
-      let currentIndex = 0;
-
-      while (currentIndex < total) {
-        const slice = items.slice(currentIndex, currentIndex + batchSize);
+      while (offset < items.length) {
+        const slice = items.slice(offset, offset + batchSize);
         await new Promise((resolve, reject) => {
           const tx = db.transaction(STORE_NAME, 'readwrite');
           const store = tx.objectStore(STORE_NAME);
-          for (let i = 0; i < slice.length; i++) {
-            const it = slice[i];
-            const q = it.question || it.soal || it.Question || it.SOAL;
-            const a = it.answer || it.jawaban || it.Answer || it.JAWABAN;
-            if (q) store.add({ question: String(q).trim(), answer: a ? String(a).trim() : '' });
+          for (const item of slice) {
+            store.put(item);
           }
           tx.oncomplete = () => resolve();
-          tx.onerror = (e) => reject(e.target.error);
+          tx.onerror = (e) => reject(e);
         });
-
-        currentIndex += slice.length;
-        const pct = Math.round((currentIndex / total) * 100);
-        updateModalProgress(pct, `Imported: ${currentIndex.toLocaleString()} / ${total.toLocaleString()} rows`);
-        await new Promise(r => setTimeout(r, 10)); // allow UI breathe
+        offset += slice.length;
+        await new Promise(r => setTimeout(r, 10)); // prevent UI choke
       }
 
-      await updateStatBadges();
-      await syncWorkerData();
-      hideModal();
-      alert(`Success! Imported ${total.toLocaleString()} questions permanently into your device.`);
+      const map = new Map();
+      activeQuestions.forEach(q => map.set(q.id, q));
+      items.forEach(q => map.set(q.id, q));
+      activeQuestions = Array.from(map.values());
+      updateCounters();
+      renderBankList();
+      syncWorkerData();
     }
 
-    /* =========================================================
-       4. AUTO-HYDRATE MASTER DB ON FIRST LAUNCH
-       ========================================================= */
-    async function checkFirstLaunchAutoHydrate() {
-      const count = await getStoredCount();
-      if (count === 0) {
-        showModal("Auto-Setup Engine", "Downloading master bank data-master.json from repository...", 20);
-        try {
-          const res = await fetch('data-master.json');
-          if (!res.ok) throw new Error("Master database file not found in repository root yet.");
-          updateModalProgress(40, "Parsing master bank questions...");
-          const data = await res.json();
-          await ingestBatchArray(data);
-        } catch (err) {
-          hideModal();
-          console.warn("Auto-hydrate note:", err.message);
+    // --- AUTO-HYDRATION: Multi-Part (`data-part1.json`, `data-part2.json`, `data-part3.json`) OR Single (`data-master.json`) ---
+    async function checkMasterDBUpdates(isManual = false) {
+      const modal = document.getElementById('syncModal');
+      const progress = document.getElementById('syncModalProgress');
+      const pctLabel = document.getElementById('syncModalPct');
+      const descLabel = document.getElementById('syncModalDesc');
+
+      try {
+        modal.classList.remove('hidden');
+        progress.style.width = '10%';
+        pctLabel.innerText = '10%';
+        descLabel.innerText = 'Checking repository for data-part1, data-part2, data-part3...';
+
+        let combinedData = [];
+
+        // Check if multi-part files exist (bypass 25MB)
+        const partNames = ['data-part1.json', 'data-part2.json', 'data-part3.json'];
+        let hasParts = false;
+
+        for (let i = 0; i < partNames.length; i++) {
+          const partFile = partNames[i];
+          try {
+            const res = await fetch(partFile, { cache: 'no-cache' });
+            if (res.ok) {
+              hasParts = true;
+              descLabel.innerText = `Downloading ${partFile} (${i + 1} of 3)...`;
+              const json = await res.json();
+              if (Array.isArray(json)) {
+                combinedData.push(...json);
+              }
+              const p = 15 + Math.round(((i + 1) / partNames.length) * 55);
+              progress.style.width = `${p}%`;
+              pctLabel.innerText = `${p}%`;
+            }
+          } catch (e) {
+            console.warn(`Part ${partFile} skipped:`, e);
+          }
         }
-      } else {
-        await syncWorkerData();
+
+        // Fallback: If no parts, try single data-master.json
+        if (!hasParts || combinedData.length === 0) {
+          try {
+            descLabel.innerText = 'Checking single data-master.json fallback...';
+            const res = await fetch('data-master.json', { cache: 'no-cache' });
+            if (res.ok) {
+              const json = await res.json();
+              if (Array.isArray(json)) combinedData = json;
+            }
+          } catch (e) {}
+        }
+
+        if (combinedData.length > 0) {
+          descLabel.innerText = `Locking ${combinedData.length.toLocaleString()} questions permanently to this device...`;
+          progress.style.width = '85%';
+          pctLabel.innerText = '85%';
+
+          const formatted = combinedData.map(normalizeParsedEntry);
+          await saveBulkToStorage(formatted);
+
+          progress.style.width = '100%';
+          pctLabel.innerText = '100%';
+          showToast(`Master database loaded (${formatted.length.toLocaleString()} items)!`, 'success');
+          
+          setTimeout(() => {
+            modal.classList.add('hidden');
+          }, 800);
+          return true;
+        } else {
+          modal.classList.add('hidden');
+          if (isManual) showToast('No master database files found in repository.', 'warning');
+          return false;
+        }
+      } catch (err) {
+        modal.classList.add('hidden');
+        if (isManual) showToast('Sync failed: ' + err.message, 'error');
+        return false;
       }
     }
 
-    /* =========================================================
-       5. SEARCH DISPATCH & UI RENDERING
-       ========================================================= */
-    let lastQueryTime = 0;
+    // --- EXPORT 3-PART TO BYPASS GITHUB 25MB ERROR ---
+    async function exportSplitPartsForGithub() {
+      if (activeQuestions.length === 0) {
+        showToast('No questions currently stored to export.', 'warning');
+        return;
+      }
 
-    function triggerSearchNow() {
-      const query = document.getElementById('search-input').value.trim();
-      if (!query) return;
+      showToast('Preparing 3-part split under 25MB each...', 'info');
 
-      const minScore = parseFloat(document.getElementById('min-accuracy-select').value) / 100;
-      const loader = document.getElementById('search-loader');
-      const resultsCont = document.getElementById('results-container');
+      const dataToExport = activeQuestions.map(q => ({
+        soal: q.soal,
+        jawaban: q.jawaban,
+        kategori: q.kategori || 'General',
+        sheet: q.sheet || 'Master'
+      }));
 
-      loader.classList.remove('hidden');
-      resultsCont.innerHTML = '';
-      lastQueryTime = performance.now();
+      const total = dataToExport.length;
+      const partSize = Math.ceil(total / 3);
 
+      for (let p = 1; p <= 3; p++) {
+        const slice = dataToExport.slice((p - 1) * partSize, p * partSize);
+        if (slice.length === 0) continue;
+
+        const blob = new Blob([JSON.stringify(slice)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `data-part${p}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        await new Promise(r => setTimeout(r, 600)); // Delay between downloads
+      }
+
+      showToast('Downloaded data-part1.json, data-part2.json, data-part3.json! You can now drag them to GitHub.', 'success');
+    }
+
+    // --- Search Execution ---
+    function triggerSearchWithAnimation() {
+      const query = document.getElementById('searchQueryInput').value.trim();
+      const container = document.getElementById('resultsContainer');
+      const btnIcon = document.getElementById('searchBtnIcon');
+      const btnText = document.getElementById('searchBtnText');
+      const btn = document.getElementById('searchSubmitBtn');
+
+      if (!query) {
+        showToast('Please type or paste a question snippet first.', 'warning');
+        return;
+      }
+
+      if (isWorkerSearching) return;
+      isWorkerSearching = true;
+
+      btn.disabled = true;
+      btn.classList.add('opacity-80');
+      btnIcon.className = 'ph ph-spinner animate-spin font-bold text-base';
+      btnText.innerText = 'Scanning...';
+
+      container.innerHTML = `
+        <div class="p-8 text-center rounded-2xl border border-indigo-500/30 bg-indigo-50/50 dark:bg-slate-900/70 backdrop-blur space-y-3 animate-pulse">
+          <div class="relative w-14 h-14 mx-auto flex items-center justify-center">
+            <div class="absolute inset-0 rounded-full border-4 border-indigo-200 dark:border-indigo-950 border-t-indigo-600 animate-spin"></div>
+            <i class="ph ph-cpu text-2xl text-indigo-600 dark:text-indigo-400 font-bold"></i>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-indigo-600 dark:text-indigo-400">brandretailcortex Engine Scanning...</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Matching tokens in background worker thread without UI freezing...</p>
+          </div>
+        </div>
+      `;
+
+      const minAccuracy = parseInt(document.getElementById('minAccuracySelect').value, 10) / 100;
       searchWorker.postMessage({
-        action: 'SEARCH',
-        payload: { query, minScore, topK: 15 }
+        type: 'SEARCH',
+        query: query,
+        minAccuracy: minAccuracy
       });
     }
 
-    function renderSearchResults(results) {
-      document.getElementById('search-loader').classList.add('hidden');
-      const elapsed = (performance.now() - lastQueryTime).toFixed(1);
-      document.getElementById('search-latency').textContent = `${elapsed} ms`;
-      document.getElementById('results-count').textContent = `${results.length} Items`;
+    function finalizeSearch(results, duration) {
+      isWorkerSearching = false;
+      const btnIcon = document.getElementById('searchBtnIcon');
+      const btnText = document.getElementById('searchBtnText');
+      const btn = document.getElementById('searchSubmitBtn');
 
-      const cont = document.getElementById('results-container');
-      cont.innerHTML = '';
+      btn.disabled = false;
+      btn.classList.remove('opacity-80');
+      btnIcon.className = 'ph ph-magnifying-glass font-bold text-base';
+      btnText.innerText = 'Search Answer Now';
+
+      document.getElementById('executionTime').innerText = `${duration} ms`;
+      renderResults(results);
+    }
+
+    function renderResults(results) {
+      const container = document.getElementById('resultsContainer');
+      const badge = document.getElementById('resultsCountBadge');
+      badge.innerText = `${results.length} results`;
 
       if (results.length === 0) {
-        cont.innerHTML = `
-          <div class="p-6 text-center text-slate-400 text-sm bg-white dark:bg-dark-card rounded-2xl border border-slate-200 dark:border-dark-border">
-            <i class="fa-solid fa-circle-exclamation text-2xl text-amber-500 mb-1"></i>
-            <p>No suitable matching questions found. Try lowering the Minimum Match threshold.</p>
+        container.innerHTML = `
+          <div class="p-8 text-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40">
+            <i class="ph ph-warning-circle text-3xl text-amber-500 mb-2 font-bold"></i>
+            <p class="text-sm text-slate-700 dark:text-slate-300 font-bold">No questions matched this threshold.</p>
+            <p class="text-xs text-slate-400 mt-1">Try using shorter key phrases or lower the threshold to 20%.</p>
           </div>
         `;
         return;
       }
 
-      results.forEach((item, index) => {
-        let badgeColor = 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20';
-        if (item.score >= 80) badgeColor = 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20';
-        else if (item.score >= 60) badgeColor = 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
+      let html = '';
+      results.forEach((r) => {
+        const { item, percent } = r;
+        let badgeStyle = 'bg-rose-500 text-white';
+        let statusLabel = 'Low Match';
+        let cardBorder = 'border-slate-200 dark:border-slate-800';
 
-        const card = document.createElement('div');
-        card.className = 'bg-white dark:bg-dark-card rounded-2xl p-4 md:p-5 border border-slate-200 dark:border-dark-border shadow-sm hover:border-blue-500 transition-all';
-        card.innerHTML = `
-          <div class="flex items-start justify-between gap-3 mb-2">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">#Match Result ${index + 1}</span>
-            <span class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold border ${badgeColor}">
-              ${item.score}% Accuracy
-            </span>
-          </div>
-          <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-3">${escapeHtml(item.question)}</p>
-          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/70 border border-slate-100 dark:border-dark-border flex items-center justify-between gap-2">
-            <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 block mb-0.5">Answer</span>
-              <span class="text-sm font-bold text-slate-900 dark:text-white select-all">${escapeHtml(item.answer)}</span>
+        if (percent >= 80) {
+          badgeStyle = 'bg-emerald-500 text-white shadow-sm shadow-emerald-500/20';
+          statusLabel = 'High Match';
+          cardBorder = 'border-emerald-500/40 dark:border-emerald-500/30 ring-1 ring-emerald-500/20';
+        } else if (percent >= 60) {
+          badgeStyle = 'bg-amber-500 text-slate-950 font-black';
+          statusLabel = 'Moderate Match';
+          cardBorder = 'border-amber-500/30';
+        }
+
+        html += `
+          <div class="p-4 md:p-5 rounded-2xl bg-white dark:bg-slate-900 border ${cardBorder} shadow-sm hover:shadow-md transition space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-black ${badgeStyle}">
+                  <i class="ph ph-check-circle mr-1 text-sm font-bold"></i> ${percent}% Match • ${statusLabel}
+                </span>
+                ${item.kategori ? `<span class="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">${escapeHtml(item.kategori)}</span>` : ''}
+              </div>
+              <button onclick="copyToClipboard('${escapeJs(item.jawaban)}')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 hover:text-white text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl flex items-center gap-1.5 transition active:scale-95">
+                <i class="ph ph-copy font-bold"></i>
+                <span>Copy Answer</span>
+              </button>
             </div>
-            <button onclick="copyAnswerText('${escapeAttr(item.answer)}', this)" class="p-2 rounded-lg bg-white dark:bg-dark-card text-slate-500 hover:text-blue-600 shadow-sm border border-slate-200 dark:border-dark-border text-xs">
-              <i class="fa-regular fa-clone"></i>
-            </button>
+
+            <div>
+              <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Exam Question:</div>
+              <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 mt-0.5 leading-snug">${escapeHtml(item.soal)}</p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200/70 dark:border-slate-800">
+              <div class="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-bold">
+                <i class="ph ph-key text-xs font-bold"></i> Key Answer:
+              </div>
+              <div class="text-sm md:text-base font-bold text-slate-900 dark:text-emerald-300 mt-1 select-all leading-normal">
+                ${escapeHtml(item.jawaban)}
+              </div>
+            </div>
           </div>
         `;
-        cont.appendChild(card);
+      });
+
+      container.innerHTML = html;
+    }
+
+    // --- File Ingestion ---
+    async function handleIncomingFiles(fileList) {
+      if (!fileList || fileList.length === 0) return;
+
+      const statusBox = document.getElementById('uploadStatusBox');
+      const statusMsg = document.getElementById('uploadStatusMessage');
+      const progressBar = document.getElementById('uploadProgressBar');
+      const percentageLabel = document.getElementById('uploadPercentage');
+
+      statusBox.classList.remove('hidden');
+      statusMsg.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Reading uploaded file...';
+      progressBar.style.width = '15%';
+      percentageLabel.innerText = '15%';
+
+      let parsedItems = [];
+
+      for (let i = 0; i < fileList.length; i++) {
+        const file = fileList[i];
+        const ext = file.name.split('.').pop().toLowerCase();
+
+        try {
+          if (ext === 'xlsx' || ext === 'xls' || ext === 'csv') {
+            const data = await readSpreadsheet(file);
+            parsedItems.push(...data);
+          } else if (ext === 'pdf') {
+            const data = await readPdfFile(file);
+            parsedItems.push(...data);
+          } else if (ext === 'json') {
+            const text = await file.text();
+            const json = JSON.parse(text);
+            if (Array.isArray(json)) parsedItems.push(...json.map(normalizeParsedEntry));
+          }
+        } catch (err) {
+          showToast(`Failed reading ${file.name}: ${err.message}`, 'error');
+        }
+
+        const pct = Math.round(((i + 1) / fileList.length) * 85);
+        progressBar.style.width = `${pct}%`;
+        percentageLabel.innerText = `${pct}%`;
+      }
+
+      if (parsedItems.length > 0) {
+        statusMsg.innerHTML = `<i class="ph ph-floppy-disk"></i> Persisting ${parsedItems.length.toLocaleString()} questions permanently...`;
+        await saveBulkToStorage(parsedItems);
+        progressBar.style.width = '100%';
+        percentageLabel.innerText = '100%';
+
+        showToast(`Successfully added ${parsedItems.length.toLocaleString()} questions!`, 'success');
+        setTimeout(() => statusBox.classList.add('hidden'), 1200);
+      } else {
+        statusBox.classList.add('hidden');
+        showToast('No valid questions found in file.', 'warning');
+      }
+    }
+
+    function normalizeParsedEntry(raw, idx = 0) {
+      return {
+        id: raw.id || 'q_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6) + '_' + idx,
+        soal: String(raw.soal || raw.pertanyaan || raw.question || raw.Soal || raw.PERTANYAAN || '').trim(),
+        jawaban: String(raw.jawaban || raw.kunci || raw.answer || raw.Jawaban || raw.KUNCI || '').trim(),
+        kategori: String(raw.kategori || raw.category || raw.modul || raw.Kategori || 'General').trim(),
+        sheet: String(raw.sheet || 'Upload').trim()
+      };
+    }
+
+    function readSpreadsheet(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const allRows = [];
+
+            workbook.SheetNames.forEach(sheetName => {
+              const worksheet = workbook.Sheets[sheetName];
+              const json = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+              json.forEach((row, idx) => {
+                let questionVal = '';
+                let answerVal = '';
+                let catVal = sheetName;
+
+                for (const key of Object.keys(row)) {
+                  const lower = key.toLowerCase();
+                  if (lower.includes('soal') || lower.includes('pertanyaan') || lower.includes('question')) {
+                    questionVal = row[key];
+                  } else if (lower.includes('jawaban') || lower.includes('kunci') || lower.includes('ans') || lower.includes('answer')) {
+                    answerVal = row[key];
+                  } else if (lower.includes('kategori') || lower.includes('modul') || lower.includes('category')) {
+                    catVal = row[key];
+                  }
+                }
+
+                if (!questionVal && Object.keys(row).length >= 2) {
+                  const vals = Object.values(row);
+                  questionVal = vals[0];
+                  answerVal = vals[1];
+                }
+
+                if (questionVal && answerVal) {
+                  allRows.push(normalizeParsedEntry({
+                    soal: questionVal,
+                    jawaban: answerVal,
+                    kategori: catVal,
+                    sheet: sheetName
+                  }, idx));
+                }
+              });
+            });
+
+            resolve(allRows);
+          } catch (err) { reject(err); }
+        };
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(file);
       });
     }
 
-    /* =========================================================
-       6. FILE UPLOADER (EXCEL, CSV, PDF)
-       ========================================================= */
-    async function handleFileUpload(e) {
-      const file = e.target.files[0];
-      if (!file) return;
+    async function readPdfFile(file) {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = '';
 
-      const ext = file.name.split('.').pop().toLowerCase();
-      showModal("Reading File", `Parsing ${file.name}...`, 20);
+      for (let p = 1; p <= pdf.numPages; p++) {
+        const page = await pdf.getPage(p);
+        const content = await page.getTextContent();
+        fullText += '\n' + content.items.map(item => item.str).join(' ');
+      }
 
-      try {
-        if (ext === 'xlsx' || ext === 'xls' || ext === 'csv') {
-          const reader = new FileReader();
-          reader.onload = async (evt) => {
-            const data = new Uint8Array(evt.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            const json = XLSX.utils.sheet_to_json(sheet);
-            await ingestBatchArray(json);
-          };
-          reader.readAsArrayBuffer(file);
-        } else if (ext === 'pdf') {
-          const reader = new FileReader();
-          reader.onload = async (evt) => {
-            const typedarray = new Uint8Array(evt.target.result);
-            const pdf = await pdfjsLib.getDocument(typedarray).promise;
-            let fullText = '';
-            for (let i = 1; i <= pdf.numPages; i++) {
-              const page = await pdf.getPage(i);
-              const textContent = await page.getTextContent();
-              fullText += textContent.items.map(s => s.str).join(' ') + '\n';
-            }
-            const lines = fullText.split('\n').filter(l => l.trim().length > 10);
-            const items = lines.map(line => {
-              const parts = line.split(/[\:\-–\=]/);
-              return { question: parts[0], answer: parts[1] || '' };
-            });
-            await ingestBatchArray(items);
-          };
-          reader.readAsArrayBuffer(file);
+      const lines = fullText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const extracted = [];
+      let curQ = '';
+      let curA = '';
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const isAnswer = /^(jawaban|kunci|ans|answer|a[:\.\-])/i.test(line);
+
+        if (isAnswer && curQ) {
+          curA = line.replace(/^(jawaban|kunci|ans|answer|a[:\.\-])\s*:?/i, '').trim();
+          extracted.push(normalizeParsedEntry({
+            soal: curQ,
+            jawaban: curA || 'Context in document',
+            kategori: 'PDF Bank',
+            sheet: file.name
+          }, i));
+          curQ = '';
+          curA = '';
+        } else if (/^\d+[\.\)]/i.test(line) || /^(soal|question|q[:\.\-])/i.test(line)) {
+          curQ = line.replace(/^\d+[\.\)]\s*/, '').replace(/^(soal|question|q[:\.\-])\s*:?/i, '').trim();
         }
+      }
+
+      return extracted;
+    }
+
+    // --- Tabs & UI Navigation ---
+    function switchTab(tabId) {
+      ['search', 'manage', 'guide'].forEach(t => {
+        const viewEl = document.getElementById(`view-${t}`);
+        const navEl = document.getElementById(`nav-${t}`);
+        if (t === tabId) {
+          viewEl.classList.remove('hidden');
+          navEl.className = "nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-150 bg-indigo-600 text-white shadow-md shadow-indigo-600/20";
+        } else {
+          viewEl.classList.add('hidden');
+          navEl.className = "nav-item w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-all";
+        }
+      });
+      closeMobileSidebar();
+    }
+
+    function renderBankList() {
+      const container = document.getElementById('bankListContainer');
+      const filter = (document.getElementById('bankFilterInput')?.value || '').toLowerCase();
+
+      const filtered = activeQuestions.filter(q => {
+        return (q.soal && q.soal.toLowerCase().includes(filter)) || 
+               (q.jawaban && q.jawaban.toLowerCase().includes(filter)) ||
+               (q.kategori && q.kategori.toLowerCase().includes(filter));
+      });
+
+      const totalBadge = document.getElementById('bankTotalCount');
+      if (totalBadge) totalBadge.innerText = `${filtered.length.toLocaleString()} questions`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="p-6 text-center rounded-xl border border-dashed border-slate-300 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50">
+            <p class="text-xs text-slate-500 dark:text-slate-400">No questions match your filter query.</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      filtered.slice(0, 30).forEach((item, idx) => {
+        html += `
+          <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+            <div class="flex-1 space-y-0.5">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-bold text-indigo-500 bg-indigo-500/10 px-1.5 py-0.5 rounded">#${idx + 1}</span>
+                <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400">${escapeHtml(item.kategori || 'General')}</span>
+              </div>
+              <p class="text-xs font-semibold text-slate-800 dark:text-slate-200 line-clamp-2">${escapeHtml(item.soal)}</p>
+              <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 pt-0.5">
+                <i class="ph ph-check font-bold"></i> <span>${escapeHtml(item.jawaban)}</span>
+              </div>
+            </div>
+            <button onclick="copyToClipboard('${escapeJs(item.jawaban)}')" class="self-start md:self-center px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-indigo-600 hover:text-white border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-lg flex items-center gap-1 transition">
+              <i class="ph ph-copy font-bold"></i> Copy
+            </button>
+          </div>
+        `;
+      });
+
+      if (filtered.length > 30) {
+        html += `<div class="text-center text-[11px] text-slate-400 py-1.5">Showing 30 of ${filtered.length.toLocaleString()} items. Use filter above to locate specific questions.</div>`;
+      }
+
+      container.innerHTML = html;
+    }
+
+    function updateCounters() {
+      const count = activeQuestions.length;
+      const countFormatted = count.toLocaleString();
+      
+      const sidebarEl = document.getElementById('sidebarQuestionCount');
+      if (sidebarEl) sidebarEl.innerText = countFormatted;
+
+      const bankEl = document.getElementById('bankTotalCount');
+      if (bankEl) bankEl.innerText = `${countFormatted} items`;
+
+      const landingBadge = document.getElementById('landingQuestionCountBadge');
+      if (landingBadge) landingBadge.innerText = `${countFormatted} Questions Ready`;
+    }
+
+    function copyToClipboard(text) {
+      if (!text) return;
+      const el = document.createElement('textarea');
+      el.value = text;
+      document.body.appendChild(el);
+      el.select();
+      try {
+        document.execCommand('copy');
+        showToast('Answer copied to clipboard!', 'success');
+      } catch (e) {
+        showToast('Failed to copy to clipboard.', 'error');
+      }
+      document.body.removeChild(el);
+    }
+
+    async function pasteFromClipboard() {
+      try {
+        const text = await navigator.clipboard.readText();
+        const input = document.getElementById('searchQueryInput');
+        input.value = text;
+        document.getElementById('charCounter').innerText = `${text.length} chars`;
+        triggerSearchWithAnimation();
+        showToast('Question pasted & scan started!', 'info');
       } catch (err) {
-        hideModal();
-        alert("Upload error: " + err.message);
-      }
-      e.target.value = '';
-    }
-
-    /* =========================================================
-       7. HELPERS & GENERAL INTERACTION
-       ========================================================= */
-    function switchView(viewName) {
-      document.getElementById('view-landing').classList.add('hidden');
-      document.getElementById('view-search').classList.add('hidden');
-      document.getElementById('view-manage').classList.add('hidden');
-      document.getElementById(`view-${viewName}`).classList.remove('hidden');
-
-      if (window.innerWidth < 768) {
-        document.getElementById('app-sidebar').classList.add('-translate-x-full');
+        showToast('Paste directly into the textarea.', 'warning');
       }
     }
 
-    function toggleMobileSidebar() {
-      const s = document.getElementById('app-sidebar');
-      s.classList.toggle('-translate-x-full');
+    function clearSearchInput() {
+      document.getElementById('searchQueryInput').value = '';
+      document.getElementById('charCounter').innerText = '0 chars';
+      renderResults([]);
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      
+      let bg = 'bg-slate-900 text-white border-slate-700';
+      let icon = 'ph-info';
+      if (type === 'success') {
+        bg = 'bg-emerald-600 text-white border-emerald-500';
+        icon = 'ph-check-circle';
+      } else if (type === 'error') {
+        bg = 'bg-rose-600 text-white border-rose-500';
+        icon = 'ph-x-circle';
+      } else if (type === 'warning') {
+        bg = 'bg-amber-500 text-slate-950 border-amber-400 font-bold';
+        icon = 'ph-warning';
+      }
+
+      toast.className = `flex items-center gap-2 px-3.5 py-2.5 rounded-xl shadow-xl text-xs font-semibold border pointer-events-auto transition transform translate-y-2 opacity-0 duration-200 ${bg}`;
+      toast.innerHTML = `<i class="ph ${icon} text-base font-bold"></i> <span>${message}</span>`;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => toast.classList.remove('translate-y-2', 'opacity-0'));
+      setTimeout(() => {
+        toast.classList.add('translate-y-2', 'opacity-0');
+        setTimeout(() => toast.remove(), 250);
+      }, 3000);
+    }
+
+    function escapeHtml(s) {
+      if (!s) return '';
+      return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    function escapeJs(s) {
+      if (!s) return '';
+      return String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '');
+    }
+
+    function openMobileSidebar() {
+      document.getElementById('sidebar').classList.remove('-translate-x-full');
+      document.getElementById('sidebarBackdrop').classList.remove('hidden');
+    }
+
+    function closeMobileSidebar() {
+      document.getElementById('sidebar').classList.add('-translate-x-full');
+      document.getElementById('sidebarBackdrop').classList.add('hidden');
+    }
+
+    function initTheme() {
+      const html = document.documentElement;
+      const savedTheme = localStorage.getItem('cortex_theme') || 'dark';
+      if (savedTheme === 'light') {
+        html.classList.remove('dark');
+        const txt = document.getElementById('themeStatusText');
+        if (txt) txt.innerText = 'Light';
+      } else {
+        html.classList.add('dark');
+        const txt = document.getElementById('themeStatusText');
+        if (txt) txt.innerText = 'Dark';
+      }
     }
 
     function toggleTheme() {
       const html = document.documentElement;
-      html.classList.toggle('dark');
-      const isDark = html.classList.contains('dark');
-      document.getElementById('theme-label').textContent = isDark ? 'Dark' : 'Light';
-      localStorage.setItem('bc_theme', isDark ? 'dark' : 'light');
+      const isDark = html.classList.toggle('dark');
+      localStorage.setItem('cortex_theme', isDark ? 'dark' : 'light');
+      const txt = document.getElementById('themeStatusText');
+      if (txt) txt.innerText = isDark ? 'Dark' : 'Light';
     }
 
-    function showModal(title, desc, pct) {
-      document.getElementById('modal-title').textContent = title;
-      document.getElementById('modal-desc').textContent = desc;
-      updateModalProgress(pct);
-      document.getElementById('progress-modal').classList.remove('hidden');
-    }
-
-    function updateModalProgress(pct, text) {
-      document.getElementById('modal-progress-bar').style.width = `${pct}%`;
-      document.getElementById('modal-progress-text').textContent = `${pct}%`;
-      if (text) document.getElementById('modal-desc').textContent = text;
-    }
-
-    function hideModal() {
-      document.getElementById('progress-modal').classList.add('hidden');
-    }
-
-    async function handleClipboardPaste() {
-      try {
-        const text = await navigator.clipboard.readText();
-        if (text) {
-          document.getElementById('search-input').value = text;
-          triggerSearchNow();
-        }
-      } catch (e) {
-        alert("Clipboard permission required. Please paste manually into the text area.");
-      }
-    }
-
-    function clearSearchBox() {
-      document.getElementById('search-input').value = '';
-      document.getElementById('results-container').innerHTML = '';
-      document.getElementById('results-count').textContent = '0 Items';
-    }
-
-    function copyAnswerText(text, btn) {
-      navigator.clipboard.writeText(text);
-      const icon = btn.querySelector('i');
-      icon.className = 'fa-solid fa-check text-emerald-500';
-      setTimeout(() => icon.className = 'fa-regular fa-clone', 1500);
-    }
-
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
-
-    function escapeAttr(str) {
-      if (!str) return '';
-      return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
-    }
-
-    // Initialize listeners
+    // --- Lifecycle Initialization ---
     window.addEventListener('DOMContentLoaded', async () => {
-      if (localStorage.getItem('bc_theme') === 'light') {
-        document.documentElement.classList.remove('dark');
-        document.getElementById('theme-label').textContent = 'Light';
-      } else {
-        document.documentElement.classList.add('dark');
-      }
+      initTheme();
+      initSearchWorker();
+      await requestStoragePersistence();
+      await loadQuestionsFromStorage();
 
-      if (navigator.storage && navigator.storage.persist) {
-        navigator.storage.persist();
-      }
+      let debounceTimer = null;
+      const searchInput = document.getElementById('searchQueryInput');
+      searchInput.addEventListener('input', (e) => {
+        const text = e.target.value;
+        document.getElementById('charCounter').innerText = `${text.length} chars`;
 
-      initWebWorker();
-      await updateStatBadges();
-      await checkFirstLaunchAutoHydrate();
+        if (document.getElementById('realtimeToggle').checked) {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(() => triggerSearchWithAnimation(), 250);
+        }
+      });
 
-      document.getElementById('search-input').addEventListener('keydown', (e) => {
+      searchInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
-          triggerSearchNow();
+          triggerSearchWithAnimation();
         }
       });
 
-      document.getElementById('search-input').addEventListener('input', () => {
-        if (document.getElementById('realtime-toggle').checked) {
-          triggerSearchNow();
+      document.getElementById('bankFilterInput')?.addEventListener('input', renderBankList);
+      document.getElementById('minAccuracySelect').addEventListener('change', triggerSearchWithAnimation);
+
+      const dropZone = document.getElementById('dropZone');
+      const fileInput = document.getElementById('fileUploadInput');
+
+      dropZone.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', (e) => handleIncomingFiles(e.target.files));
+
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('border-indigo-500', 'bg-indigo-500/10');
+      });
+
+      dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('border-indigo-500', 'bg-indigo-500/10');
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-indigo-500', 'bg-indigo-500/10');
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          handleIncomingFiles(e.dataTransfer.files);
         }
       });
+
+      document.getElementById('mobileMenuBtn').addEventListener('click', openMobileSidebar);
+      document.getElementById('closeSidebarMobile').addEventListener('click', closeMobileSidebar);
+      document.getElementById('sidebarBackdrop').addEventListener('click', closeMobileSidebar);
     });
   </script>
 </body>
