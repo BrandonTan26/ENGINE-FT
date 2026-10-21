@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -12,14 +12,22 @@
       theme: {
         extend: {
           colors: {
-            brand: { 50: '#eff6ff', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 900: '#1e3a8a' },
-            dark: { bg: '#0b0f19', card: '#111827', border: '#1f2937' }
+            app: {
+              bg: '#080a10',
+              card: '#0f1422',
+              cardInner: '#151c30',
+              border: '#1f2a44',
+              accent: '#6366f1',
+              accentHover: '#4f46e5',
+              purple: '#5b47fb',
+              purpleHover: '#4d3ae2'
+            }
           }
         }
       }
     }
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -27,268 +35,274 @@
   <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';</script>
 
   <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    h1, h2, h3, .font-heading { font-family: 'Outfit', sans-serif; }
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.4); border-radius: 9999px; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #07090e; }
+    .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #263352; border-radius: 9999px; }
+    .quote-fade { transition: opacity 0.4s ease-in-out; }
   </style>
 </head>
-<body class="bg-slate-50 dark:bg-dark-bg text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+<body class="text-slate-200 min-h-screen flex flex-col select-none">
 
-  <!-- YLÄPALKKI MOBIILILLE -->
-  <header class="md:hidden sticky top-0 z-40 bg-white/90 dark:bg-dark-card/90 backdrop-blur border-b border-slate-200 dark:border-dark-border px-4 py-3 flex items-center justify-between">
+  <!-- MOBILE HEADER DENGAN BRC.PNG -->
+  <header class="md:hidden sticky top-0 z-40 bg-[#0b0e17]/95 backdrop-blur border-b border-[#1a233a] px-4 py-2.5 flex items-center justify-between">
     <div class="flex items-center gap-2">
-      <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-sm">BC</div>
-      <span class="font-heading font-extrabold text-base tracking-tight text-blue-600 dark:text-blue-400">brandretailcortex</span>
+      <img src="brc.png" alt="brandretailcortex.store" class="h-7 w-auto object-contain">
     </div>
-    <div class="flex items-center gap-2">
-      <button onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-        <i class="fa-solid fa-moon dark:hidden"></i>
-        <i class="fa-solid fa-sun hidden dark:inline"></i>
-      </button>
-      <button onclick="toggleMobileSidebar()" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-        <i class="fa-solid fa-bars"></i>
-      </button>
-    </div>
+    <button onclick="toggleSidebar()" class="p-2 rounded-lg bg-[#151c30] text-slate-300">
+      <i class="fa-solid fa-bars"></i>
+    </button>
   </header>
 
   <div class="flex-1 flex w-full">
     
-    <!-- SIVUPALKKI -->
-    <aside id="app-sidebar" class="fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-dark-card border-r border-slate-200 dark:border-dark-border transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col justify-between">
+    <!-- SIDEBAR PERSIS TAMPILAN AWAL -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-[#0a0d16] border-r border-[#172033] transform -translate-x-full md:translate-x-0 transition-transform duration-200 flex flex-col justify-between">
       <div>
-        <div class="p-5 border-b border-slate-200 dark:border-dark-border flex items-center justify-between">
+        <!-- Brand Title & Mini Logo -->
+        <div class="p-5 border-b border-[#172033] flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-extrabold text-lg shadow-md shadow-blue-500/20">BC</div>
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 flex items-center justify-center text-white font-black text-base shadow-lg shadow-indigo-500/30">FT</div>
             <div>
-              <h1 class="font-heading font-extrabold text-lg leading-tight text-slate-900 dark:text-white">brandretailcortex</h1>
-              <span class="text-xs font-semibold text-blue-600 dark:text-blue-400">FT Answer Engine</span>
+              <h1 class="font-bold text-sm text-white leading-tight">brandretailcortex</h1>
+              <span class="text-[11px] text-indigo-400 font-medium">FT Search Engine</span>
             </div>
           </div>
-          <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-slate-600">
-            <i class="fa-solid fa-xmark text-lg"></i>
+          <button onclick="toggleSidebar()" class="md:hidden text-slate-400">
+            <i class="fa-solid fa-xmark"></i>
           </button>
         </div>
 
-        <div class="p-4 mx-4 my-4 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/50">
+        <!-- Box Total Bank Soal -->
+        <div class="m-3 p-4 rounded-xl bg-[#0e1424] border border-[#1b253d]">
           <div class="flex justify-between items-center mb-1">
-            <span class="text-xs uppercase font-bold tracking-wider text-slate-500 dark:text-slate-400">Total Question Bank</span>
-            <span class="text-[10px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold px-2 py-0.5 rounded-full"><i class="fa-solid fa-shield-halved mr-1"></i>Offline</span>
+            <span class="text-[11px] font-bold tracking-wider text-slate-400">Bank Soal di HP Ini</span>
+            <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold px-2 py-0.5 rounded-md">Standalone</span>
           </div>
-          <div class="text-2xl font-heading font-black text-slate-900 dark:text-white" id="stat-total-q">0</div>
-          <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Locked into IndexedDB</p>
+          <div class="text-3xl font-extrabold text-white mt-1" id="stat-total-q">0</div>
+          <div class="flex items-center gap-1.5 mt-2 text-[11px] text-emerald-400">
+            <i class="fa-solid fa-circle-check text-[10px]"></i>
+            <span>Permanen Terkunci</span>
+          </div>
         </div>
 
-        <nav class="px-4 space-y-1.5">
-          <button onclick="switchView('landing')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all">
-            <i class="fa-solid fa-house w-5 text-center text-blue-500"></i>
-            <span>Home Portal</span>
+        <!-- Navigasi -->
+        <nav class="px-3 space-y-1 mt-2">
+          <button onclick="switchTab('search')" id="nav-btn-search" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-[#1a2238] text-white shadow-sm border border-indigo-500/30">
+            <i class="fa-solid fa-magnifying-glass text-indigo-400 w-4"></i>
+            <span>Cari Jawaban (Search)</span>
           </button>
-          <button onclick="switchView('search')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all">
-            <i class="fa-solid fa-magnifying-glass w-5 text-center text-indigo-500"></i>
-            <span>Search Engine</span>
+          <button onclick="switchTab('manage')" id="nav-btn-manage" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-[#121829]">
+            <i class="fa-solid fa-database text-slate-400 w-4"></i>
+            <span>Kelola Kisi-kisi (Bank)</span>
           </button>
-          <button onclick="switchView('manage')" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all">
-            <i class="fa-solid fa-database w-5 text-center text-purple-500"></i>
-            <span>Database & Files</span>
+          <button onclick="switchTab('tips')" id="nav-btn-tips" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-[#121829]">
+            <i class="fa-regular fa-lightbulb text-slate-400 w-4"></i>
+            <span>Panduan & Tips Ujian</span>
+          </button>
+          <button onclick="switchTab('landing')" id="nav-btn-landing" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-[#121829]">
+            <i class="fa-solid fa-house text-slate-400 w-4"></i>
+            <span>Kembali ke Halaman Depan</span>
           </button>
         </nav>
       </div>
 
-      <div class="p-4 border-t border-slate-200 dark:border-dark-border space-y-3">
-        <button onclick="toggleTheme()" class="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-sm font-medium text-slate-700 dark:text-slate-300">
-          <span class="flex items-center gap-2"><i class="fa-solid fa-circle-half-stroke text-slate-500"></i> Theme Mode</span>
-          <span class="text-xs uppercase font-bold text-blue-600 dark:text-blue-400" id="theme-label">Dark</span>
-        </button>
+      <div class="p-3 border-t border-[#172033]">
+        <div class="px-3 py-2 rounded-xl bg-[#0e1424] border border-[#1b253d] flex items-center justify-between text-xs text-slate-400">
+          <span class="flex items-center gap-2"><i class="fa-solid fa-moon text-indigo-400"></i> Mode Tampilan</span>
+          <span class="font-bold text-white text-[10px] tracking-wider uppercase">DARK</span>
+        </div>
       </div>
     </aside>
 
-    <!-- PÄÄALUE -->
-    <main class="flex-1 md:ml-72 flex flex-col min-h-screen">
+    <!-- MAIN BODY -->
+    <main class="flex-1 md:ml-64 flex flex-col min-h-screen bg-[#07090e]">
       
-      <!-- NÄKYMÄ: ETUSIVU -->
-      <section id="view-landing" class="p-4 md:p-10 max-w-5xl mx-auto w-full flex flex-col items-center justify-center flex-1">
-        <div class="w-full max-w-2xl bg-white dark:bg-dark-card rounded-3xl p-6 md:p-8 border border-slate-200 dark:border-dark-border shadow-xl text-center relative overflow-hidden">
-          <div class="w-full max-h-72 flex items-center justify-center overflow-hidden rounded-2xl mb-6 bg-slate-100 dark:bg-slate-800/50">
-            <img src="logo.png" alt="Retail Team Portal Banner" class="w-full h-auto max-h-72 object-contain" onerror="this.src='https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=800&q=80';">
+      <!-- HALAMAN DEPAN (LANDING BANNER) -->
+      <section id="view-landing" class="hidden p-4 md:p-8 max-w-4xl mx-auto w-full flex-1 flex flex-col items-center justify-center">
+        <div class="w-full bg-[#0d1220] border border-[#1a243c] rounded-3xl p-6 md:p-8 text-center shadow-2xl relative overflow-hidden">
+          <div class="w-full max-h-80 flex items-center justify-center overflow-hidden rounded-2xl mb-6 bg-[#090d17]">
+            <img src="logo.png" alt="Banner" class="w-full h-auto max-h-80 object-contain" onerror="this.style.display='none';">
           </div>
-
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-bold mb-3">
-            <i class="fa-solid fa-bolt"></i> High-Speed Local Offline Engine
-          </div>
-
-          <h2 class="text-2xl md:text-3xl font-heading font-extrabold text-slate-900 dark:text-white leading-tight mb-2">
-            Welcome to FT Answer Search Assistant
-          </h2>
-          <p class="text-slate-600 dark:text-slate-400 text-sm mb-6 max-w-lg mx-auto">
-            Offline intelligence platform designed to pinpoint functional test solutions instantly using advanced fuzzy candidate indexing.
-          </p>
-
-          <div class="mb-6 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 text-left flex items-start gap-3">
-            <i class="fa-solid fa-triangle-exclamation text-amber-500 mt-1"></i>
-            <div class="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
-              <strong class="font-bold block mb-0.5">Integrity Notice:</strong>
-              This tool operates entirely locally on your device storage. Upload and search question banks responsibly as personal self-study materials.
-            </div>
-          </div>
-
-          <button onclick="switchView('search')" class="w-full py-3.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-base shadow-lg shadow-blue-500/30 transition-all flex items-center justify-center gap-2">
-            <span>Launch Search Engine</span>
-            <i class="fa-solid fa-arrow-right"></i>
+          <h2 class="text-2xl font-bold text-white mb-2">brandretailcortex FT Search Engine</h2>
+          <p class="text-xs text-slate-400 mb-6">Aplikasi pencarian kisi-kisi Functional Test ritel instan offline dengan pencocokan cerdas.</p>
+          <button onclick="switchTab('search')" class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm shadow-lg shadow-indigo-500/20">
+            Masuk ke Pencarian Soal
           </button>
         </div>
       </section>
 
-      <!-- NÄKYMÄ: HAKUKONE -->
-      <section id="view-search" class="p-4 md:p-8 max-w-5xl mx-auto w-full hidden flex-1 flex-col">
-        <div class="bg-white dark:bg-dark-card rounded-2xl p-5 md:p-6 border border-slate-200 dark:border-dark-border shadow-sm mb-6">
+      <!-- TAB PENCARIAN -->
+      <section id="view-search" class="p-4 md:p-6 max-w-5xl mx-auto w-full flex-1 flex flex-col">
+        
+        <!-- HEADER LOGO PANJANG BRC.PNG -->
+        <div class="w-full flex items-center justify-center py-3 mb-4 rounded-2xl bg-[#0c101c]/80 border border-[#192238] shadow-md backdrop-blur">
+          <img src="brc.png" alt="brandretailcortex.store" class="h-10 md:h-12 w-auto object-contain max-w-[85%]">
+        </div>
+
+        <!-- CARD INPUT SOAL -->
+        <div class="bg-[#0c101c] rounded-2xl p-5 border border-[#192238] shadow-xl mb-4">
           <div class="flex items-center justify-between mb-3">
-            <label class="text-sm font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
-              <i class="fa-solid fa-paste text-blue-500"></i> Paste Test Question Below
-            </label>
-            <div class="flex gap-2">
-              <button onclick="handleClipboardPaste()" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100">
-                <i class="fa-regular fa-clipboard mr-1"></i> Paste & Search
+            <div>
+              <h2 class="text-base font-bold text-white leading-tight">Cari Jawaban</h2>
+              <p class="text-[11px] text-slate-400">Copas potongan soal ujian ritel (FT) di bawah:</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="pasteFromClipboard()" class="px-3 py-1.5 rounded-lg bg-[#182138] hover:bg-[#202c4b] border border-[#233152] text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+                <i class="fa-regular fa-paste text-indigo-400"></i>
+                <span>Paste Soal</span>
               </button>
-              <button onclick="clearSearchBox()" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200">
-                Clear
+              <button onclick="clearSearchInput()" class="px-3 py-1.5 rounded-lg bg-[#13192a] hover:bg-[#1a2238] border border-[#1c2742] text-xs font-semibold text-slate-400">
+                Bersihkan
               </button>
             </div>
           </div>
 
-          <textarea id="search-input" rows="3" placeholder="Copy-paste the question here and press Enter..." class="w-full p-3.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-dark-border focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-white transition-all"></textarea>
+          <textarea id="search-input" rows="3" placeholder="Ketik atau paste soal di sini lalu tekan Enter..." class="w-full p-3.5 text-sm rounded-xl bg-[#080b13] border border-[#1c263f] focus:border-indigo-500 focus:outline-none text-white custom-scroll placeholder-slate-600 transition-all"></textarea>
+          
+          <div class="flex justify-between items-center mt-2 px-1 text-[11px] text-slate-500 font-mono">
+            <span id="char-count">0 karakter</span>
+          </div>
 
-          <div class="mt-4 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-dark-border">
-            <div class="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">
-              <label class="flex items-center gap-1.5 cursor-pointer">
-                <input type="checkbox" id="realtime-toggle" class="rounded text-blue-600 focus:ring-0">
-                <span>Realtime Detection</span>
+          <!-- Bottom Control Bar -->
+          <div class="mt-3 pt-3 border-t border-[#151c2f] flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-4 text-xs">
+              <label class="flex items-center gap-2 cursor-pointer text-slate-300">
+                <input type="checkbox" id="realtime-check" class="rounded bg-[#080b13] border-[#1c263f] text-indigo-600 focus:ring-0">
+                <span>Realtime Match (Ketik Langsung Cari)</span>
               </label>
-              <div class="flex items-center gap-1">
-                <span>Min Match:</span>
-                <select id="min-accuracy-select" class="bg-transparent font-bold text-blue-600 dark:text-blue-400 focus:outline-none">
+
+              <div class="flex items-center gap-1.5 text-slate-400">
+                <span>Batas Min:</span>
+                <select id="min-accuracy-select" class="bg-[#090d18] border border-[#19243d] rounded-lg px-2 py-1 text-indigo-400 font-bold focus:outline-none text-xs">
                   <option value="30">30%</option>
-                  <option value="40" selected>40%</option>
+                  <option value="40" selected>40% (Rekomendasi)</option>
                   <option value="50">50%</option>
                   <option value="60">60%</option>
                 </select>
               </div>
             </div>
 
-            <button onclick="triggerSearchNow()" id="btn-search-manual" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md shadow-blue-500/20 flex items-center gap-2">
-              <i class="fa-solid fa-magnifying-glass"></i>
-              <span>Find Answer</span>
+            <!-- Tombol Pencarian -->
+            <button onclick="executeSearchNow()" id="btn-submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition-all">
+              <i class="fa-solid fa-sparkles"></i>
+              <span id="btn-text">Temukan Jawaban</span>
             </button>
           </div>
         </div>
 
-        <!-- HAKUTULOSTEN TILA -->
+        <!-- STATUS PENCOCOKAN -->
         <div class="flex items-center justify-between mb-3 px-1">
-          <div class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-            <span>Matching Results</span>
-            <span id="results-count" class="px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-[10px] text-slate-700 dark:text-slate-300">0 Items</span>
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+            <span>HASIL PENCOCOKAN</span>
+            <span id="result-badge" class="px-2 py-0.5 rounded-full bg-[#131a2e] text-indigo-400 border border-[#1e2947] text-[10px]">0 hasil</span>
           </div>
-          <span id="search-latency" class="text-xs text-slate-400 font-mono">0 ms</span>
+          <span id="search-latency" class="text-[11px] text-slate-500 font-mono">0 ms</span>
         </div>
 
-        <!-- HAKUANIMAATIO -->
-        <div id="search-loader" class="hidden my-8 text-center">
-          <div class="inline-block p-4 rounded-2xl bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border shadow-lg">
-            <i class="fa-solid fa-circle-notch fa-spin text-3xl text-blue-600 mb-2"></i>
-            <p class="text-xs font-bold text-slate-700 dark:text-slate-300">Scanning indexed candidate vectors...</p>
-          </div>
-        </div>
-
-        <div id="results-container" class="space-y-3">
-          <div class="p-8 text-center text-slate-400 text-sm bg-white/50 dark:bg-dark-card/50 rounded-2xl border border-dashed border-slate-200 dark:border-dark-border">
-            <i class="fa-regular fa-folder-open text-3xl mb-2 text-slate-300 dark:text-slate-600"></i>
-            <p>Paste a question above to find accurate answers instantly.</p>
+        <!-- HASIL LIST -->
+        <div id="results-wrapper" class="space-y-3">
+          <div id="empty-hint" class="p-10 text-center rounded-2xl bg-[#0b0e19]/60 border border-dashed border-[#161f36]">
+            <i class="fa-solid fa-microchip text-3xl text-slate-600 mb-3"></i>
+            <h4 class="text-sm font-bold text-slate-300">brandretailcortex AI Engine Bekerja...</h4>
+            <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Masukkan potongan soal di atas untuk mencocokkan kisi-kisi dan jawaban resmi.</p>
           </div>
         </div>
       </section>
 
-      <!-- NÄKYMÄ: TIETOKANTA -->
-      <section id="view-manage" class="p-4 md:p-8 max-w-5xl mx-auto w-full hidden flex-1 flex-col">
-        <div class="bg-white dark:bg-dark-card rounded-2xl p-6 border border-slate-200 dark:border-dark-border shadow-sm mb-6">
-          <h3 class="text-lg font-heading font-bold text-slate-900 dark:text-white mb-1">Add Personal Question Bank</h3>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Support formats: Excel (.xlsx, .xls), CSV, PDF, and JSON. New files will be merged seamlessly without overwriting existing data.</p>
+      <!-- TAB KELOLA DATABASE -->
+      <section id="view-manage" class="hidden p-4 md:p-6 max-w-5xl mx-auto w-full flex-1 flex flex-col">
+        <div class="bg-[#0c101c] rounded-2xl p-6 border border-[#192238] shadow-xl mb-4">
+          <h3 class="text-base font-bold text-white mb-1">Tambah Kisi-kisi Mandiri</h3>
+          <p class="text-xs text-slate-400 mb-4">Mendukung format file Excel (.xlsx), CSV, atau PDF. Data baru akan otomatis digabungkan tanpa menghapus soal yang lama.</p>
           
-          <div class="border-2 border-dashed border-slate-200 dark:border-dark-border hover:border-blue-500 rounded-2xl p-6 text-center cursor-pointer bg-slate-50 dark:bg-slate-900/50" onclick="document.getElementById('file-upload-input').click()">
-            <input type="file" id="file-upload-input" class="hidden" accept=".xlsx,.xls,.csv,.pdf,.json" onchange="handleFileUpload(event)">
-            <i class="fa-solid fa-cloud-arrow-up text-3xl text-blue-500 mb-2"></i>
-            <p class="text-sm font-bold text-slate-700 dark:text-slate-200">Click to Upload Extra File</p>
-            <p class="text-xs text-slate-400 mt-1">Parses directly in local client memory</p>
+          <div onclick="document.getElementById('file-input').click()" class="border-2 border-dashed border-[#1f2b47] hover:border-indigo-500 rounded-2xl p-8 text-center cursor-pointer bg-[#080b14] transition-all">
+            <input type="file" id="file-input" class="hidden" accept=".xlsx,.xls,.csv,.pdf,.json" onchange="handleExtraFileUpload(event)">
+            <i class="fa-solid fa-cloud-arrow-up text-3xl text-indigo-400 mb-2"></i>
+            <p class="text-xs font-bold text-slate-200">Klik untuk Pilih File Kisi-kisi</p>
+            <p class="text-[10px] text-slate-500 mt-1">Data langsung diproses di dalam browser HP Anda</p>
           </div>
         </div>
 
-        <div class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 flex items-center gap-3">
-          <i class="fa-solid fa-lock text-emerald-500 text-lg"></i>
-          <div>
-            <h5 class="text-xs font-bold text-emerald-900 dark:text-emerald-300">Permanent Storage & Anti-Deletion Safeguard Active</h5>
-            <p class="text-[11px] text-emerald-700 dark:text-emerald-400">All questions are permanently locked into IndexedDB on your device. Export and reset options are protected.</p>
-          </div>
+        <div class="p-4 rounded-xl bg-emerald-950/20 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-3">
+          <i class="fa-solid fa-shield-halved text-lg"></i>
+          <span>Database induk 160.000 soal tersimpan permanen di memori HP Anda dan dapat digunakan offline sepenuhnya.</span>
         </div>
       </section>
 
-      <!-- ALATUNNISTE -->
-      <footer class="mt-auto py-5 border-t border-slate-200 dark:border-dark-border text-center text-xs text-slate-400">
+      <!-- TAB TIPS -->
+      <section id="view-tips" class="hidden p-4 md:p-6 max-w-5xl mx-auto w-full flex-1 flex flex-col">
+        <div class="bg-[#0c101c] rounded-2xl p-6 border border-[#192238] shadow-xl space-y-4 text-xs text-slate-300">
+          <h3 class="text-base font-bold text-white">Panduan Penggunaan Mesin FT</h3>
+          <ul class="list-disc pl-5 space-y-2 text-slate-400">
+            <li>Cukup copas 3-5 kata penting dari soal ujian untuk mempercepat pencocokan.</li>
+            <li>Jika hasil tidak keluar, turunkan Batas Minimum ke 30%.</li>
+            <li>Tekan tombol salin pada kartu jawaban untuk memindahkan jawaban secara instan.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- FOOTER RESMI 2026 -->
+      <footer class="mt-auto py-4 border-t border-[#131a2c] text-center text-[11px] text-slate-600">
         &copy; 2026 brandretailcortex - FT Answer Search Engine. All rights reserved.
       </footer>
     </main>
   </div>
 
-  <!-- EDISTYMISMODAALI -->
-  <div id="progress-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4 select-none">
-    <div class="bg-white dark:bg-dark-card max-w-md w-full rounded-3xl p-6 md:p-8 border-2 border-amber-500/50 text-center shadow-2xl relative overflow-hidden">
+  <!-- MODAL PARALEL SYNC + RUNNING KATA MUTIARA -->
+  <div id="sync-modal" class="fixed inset-0 bg-[#04060a]/92 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4">
+    <div class="bg-[#0c111e] max-w-sm w-full rounded-2xl p-6 border border-indigo-500/40 text-center shadow-2xl relative overflow-hidden">
       
-      <div class="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto mb-4 text-2xl border border-amber-500/30 animate-pulse">
-        <i class="fa-solid fa-triangle-exclamation"></i>
+      <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mx-auto mb-3 text-xl border border-indigo-500/20">
+        <i class="fa-solid fa-bolt-lightning text-indigo-400"></i>
+      </div>
+      <h4 class="text-sm font-bold text-white mb-1" id="sync-modal-title">Sinkronisasi Kilat Bank Soal</h4>
+      
+      <div class="my-3 p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[11px] font-semibold text-left">
+        JANGAN TUTUP ATAU REFRESH HALAMAN! Sedang mengunci 160.000 data ke HP Anda.
       </div>
 
-      <h4 class="text-xl font-heading font-black text-slate-900 dark:text-white mb-2" id="modal-title">
-        Downloading Master Bank
-      </h4>
-      
-      <div class="mb-5 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-bold leading-relaxed flex items-center gap-2.5 text-left">
-        <i class="fa-solid fa-ban text-lg flex-shrink-0"></i>
-        <span>DO NOT CLOSE OR REFRESH THIS PAGE! Allow the setup to reach 100% so data is saved permanently on your device.</span>
+      <!-- KOTAK RUNNING KATA-KATA MUTIARA -->
+      <div class="my-3 p-3 rounded-xl bg-[#141b2d]/70 border border-[#202c48] text-left">
+        <span class="text-[9px] font-bold text-indigo-400 uppercase tracking-wider block mb-1 flex items-center gap-1.5">
+          <i class="fa-solid fa-quote-left"></i> Motivasi Hari Ini
+        </span>
+        <p id="quote-display" class="quote-fade text-xs text-slate-300 italic min-h-[38px] leading-relaxed">
+          "Hasil terbaik datang dari persiapan yang tidak main-main."
+        </p>
       </div>
 
-      <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-4" id="modal-desc">
-        Connecting to repository stream...
-      </p>
+      <p class="text-[11px] text-slate-400 mb-2" id="sync-modal-desc">Menyerap 3 paket soal sekaligus...</p>
       
-      <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-3 overflow-hidden mb-2 p-0.5 border border-slate-200 dark:border-slate-700">
-        <div id="modal-progress-bar" class="bg-gradient-to-r from-blue-600 to-indigo-600 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+      <!-- Progress Bar -->
+      <div class="w-full bg-[#141b2d] rounded-full h-2 overflow-hidden mb-1.5 border border-[#1f2b47]">
+        <div id="sync-progress-bar" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
       </div>
-      
-      <div class="flex justify-between items-center text-xs font-mono font-bold mt-2">
-        <span class="text-slate-400" id="modal-part-indicator">Part 1 of 3</span>
-        <span class="text-blue-600 dark:text-blue-400 text-sm" id="modal-progress-text">0%</span>
+      <div class="flex justify-between items-center text-[10px] font-mono text-slate-500">
+        <span id="sync-part-indicator">Download Paralel Aktif</span>
+        <span id="sync-pct-text" class="text-indigo-400 font-bold">0%</span>
       </div>
     </div>
   </div>
 
   <script>
     /* =========================================================
-       1. TIETOKANTARAKENNE (INDEXEDDB)
+       1. STORAGE INDEXEDDB
        ========================================================= */
     const DB_NAME = 'brandretailcortex_db';
     const DB_VERSION = 1;
     const STORE_NAME = 'questions_store';
     let dbInstance = null;
-    let isDownloadingMaster = false;
+    let isSyncing = false;
 
-    // Estetään välilehden tahaton sulkeminen latauksen aikana
     window.addEventListener('beforeunload', (e) => {
-      if (isDownloadingMaster) {
+      if (isSyncing) {
         e.preventDefault();
-        e.returnValue = 'Data sync in progress. Leaving now will interrupt the offline storage setup!';
+        e.returnValue = 'Sinkronisasi sedang berjalan. Keluar sekarang akan membatalkan penyimpanan!';
         return e.returnValue;
       }
     });
 
-    function openDatabase() {
+    function getDB() {
       return new Promise((resolve, reject) => {
         if (dbInstance) return resolve(dbInstance);
         const req = indexedDB.open(DB_NAME, DB_VERSION);
@@ -307,8 +321,8 @@
       });
     }
 
-    async function getStoredCount() {
-      const db = await openDatabase();
+    async function getTotalCount() {
+      const db = await getDB();
       return new Promise((resolve) => {
         const tx = db.transaction(STORE_NAME, 'readonly');
         const store = tx.objectStore(STORE_NAME);
@@ -318,154 +332,149 @@
       });
     }
 
-    async function updateStatBadges() {
-      const count = await getStoredCount();
+    async function refreshCounter() {
+      const count = await getTotalCount();
       document.getElementById('stat-total-q').textContent = count.toLocaleString();
     }
 
     /* =========================================================
-       2. WEB WORKER HAKUA JA INDEKSÖINTIÄ VARTEN
+       2. WORKER FUZZY MATCHING (BACKGROUND THREAD)
        ========================================================= */
-    let searchWorker = null;
+    let worker = null;
 
-    function initWebWorker() {
-      const workerCode = `
-        let questionData = [];
-        let invertedIndex = new Map();
+    function initWorker() {
+      const code = `
+        let items = [];
+        let index = new Map();
 
         function tokenize(text) {
           if (!text) return [];
           return text.toLowerCase().replace(/[^a-z0-9\\s]/g, ' ').split(/\\s+/).filter(w => w.length >= 3);
         }
 
-        function buildInvertedIndex() {
-          invertedIndex.clear();
-          for (let i = 0; i < questionData.length; i++) {
-            const tokens = tokenize(questionData[i].question);
+        function buildIndex() {
+          index.clear();
+          for (let i = 0; i < items.length; i++) {
+            const tokens = tokenize(items[i].question);
             for (let t = 0; t < tokens.length; t++) {
-              const token = tokens[t];
-              if (!invertedIndex.has(token)) {
-                invertedIndex.set(token, []);
-              }
-              const list = invertedIndex.get(token);
-              if (list.length < 500) {
-                list.push(i);
-              }
+              const w = tokens[t];
+              if (!index.has(w)) index.set(w, []);
+              const list = index.get(w);
+              if (list.length < 500) list.push(i);
             }
           }
         }
 
-        function diceSorensen(s1, s2) {
+        function diceScore(s1, s2) {
           if (!s1 || !s2) return 0;
           if (s1 === s2) return 1.0;
-          const clean1 = s1.toLowerCase().replace(/\\s+/g, '');
-          const clean2 = s2.toLowerCase().replace(/\\s+/g, '');
-          if (clean1.length < 2 || clean2.length < 2) return clean1 === clean2 ? 1 : 0;
+          const c1 = s1.toLowerCase().replace(/\\s+/g, '');
+          const c2 = s2.toLowerCase().replace(/\\s+/g, '');
+          if (c1.length < 2 || c2.length < 2) return c1 === c2 ? 1 : 0;
 
-          const bigrams1 = new Map();
-          for (let i = 0; i < clean1.length - 1; i++) {
-            const bigram = clean1.substr(i, 2);
-            bigrams1.set(bigram, (bigrams1.get(bigram) || 0) + 1);
+          const bg1 = new Map();
+          for (let i = 0; i < c1.length - 1; i++) {
+            const b = c1.substr(i, 2);
+            bg1.set(b, (bg1.get(b) || 0) + 1);
           }
 
-          let intersection = 0;
-          for (let i = 0; i < clean2.length - 1; i++) {
-            const bigram = clean2.substr(i, 2);
-            const count = bigrams1.get(bigram) || 0;
+          let inter = 0;
+          for (let i = 0; i < c2.length - 1; i++) {
+            const b = c2.substr(i, 2);
+            const count = bg1.get(b) || 0;
             if (count > 0) {
-              bigrams1.set(bigram, count - 1);
-              intersection++;
+              bg1.set(b, count - 1);
+              inter++;
             }
           }
-          return (2.0 * intersection) / ((clean1.length - 1) + (clean2.length - 1));
+          return (2.0 * inter) / ((c1.length - 1) + (c2.length - 1));
         }
 
         self.onmessage = function(e) {
           const { action, payload } = e.data;
-          if (action === 'LOAD_DATA') {
-            questionData = payload;
-            buildInvertedIndex();
-            self.postMessage({ action: 'DATA_LOADED', count: questionData.length });
+          if (action === 'LOAD') {
+            items = payload;
+            buildIndex();
+            self.postMessage({ action: 'READY', count: items.length });
           } else if (action === 'SEARCH') {
-            const { query, minScore, topK } = payload;
+            const { query, minScore } = payload;
             const qTokens = tokenize(query);
-            const candidateIndices = new Set();
+            const candidateSet = new Set();
 
             if (qTokens.length > 0) {
-              for (const t of qTokens) {
-                const list = invertedIndex.get(t);
+              for (const w of qTokens) {
+                const list = index.get(w);
                 if (list) {
                   for (let i = 0; i < list.length; i++) {
-                    candidateIndices.add(list[i]);
-                    if (candidateIndices.size >= 1500) break;
+                    candidateSet.add(list[i]);
+                    if (candidateSet.size >= 1200) break;
                   }
                 }
-                if (candidateIndices.size >= 1500) break;
+                if (candidateSet.size >= 1200) break;
               }
             }
 
-            const candidates = candidateIndices.size > 0 
-              ? Array.from(candidateIndices).map(idx => questionData[idx]) 
-              : questionData.slice(0, 1000);
+            const candidates = candidateSet.size > 0 
+              ? Array.from(candidateSet).map(idx => items[idx]) 
+              : items.slice(0, 1000);
 
             const results = [];
             for (let i = 0; i < candidates.length; i++) {
-              const item = candidates[i];
-              const score = diceSorensen(query, item.question);
+              const it = candidates[i];
+              const score = diceScore(query, it.question);
               if (score >= minScore) {
                 results.push({
-                  question: item.question,
-                  answer: item.answer || 'No direct answer listed',
+                  question: it.question,
+                  answer: it.answer || 'Tidak ada kunci jawaban tertera',
                   score: Math.round(score * 100)
                 });
               }
             }
 
             results.sort((a, b) => b.score - a.score);
-            self.postMessage({ action: 'SEARCH_RESULTS', results: results.slice(0, topK || 15) });
+            self.postMessage({ action: 'RESULTS', results: results.slice(0, 15) });
           }
         };
       `;
 
-      const blob = new Blob([workerCode], { type: 'application/javascript' });
-      searchWorker = new Worker(URL.createObjectURL(blob));
+      const blob = new Blob([code], { type: 'application/javascript' });
+      worker = new Worker(URL.createObjectURL(blob));
 
-      searchWorker.onmessage = function(e) {
-        const { action, results } = e.data;
-        if (action === 'SEARCH_RESULTS') {
-          renderSearchResults(results);
+      worker.onmessage = function(e) {
+        if (e.data.action === 'RESULTS') {
+          renderResults(e.data.results);
         }
       };
     }
 
-    async function syncWorkerData() {
-      const db = await openDatabase();
+    async function syncWorker() {
+      const db = await getDB();
       const tx = db.transaction(STORE_NAME, 'readonly');
       const store = tx.objectStore(STORE_NAME);
       const req = store.getAll();
       req.onsuccess = () => {
-        if (searchWorker) {
-          searchWorker.postMessage({ action: 'LOAD_DATA', payload: req.result });
+        if (worker) {
+          worker.postMessage({ action: 'LOAD', payload: req.result });
         }
       };
     }
 
     /* =========================================================
-       3. ERÄTIETOJEN TALLENNUS (BATCH INGESTION)
+       3. INGESTION CLUSTER CEPAT (BATCH 5.000)
        ========================================================= */
-    async function ingestBatchArray(items) {
-      const db = await openDatabase();
+    async function ingestBatch(items) {
+      const db = await getDB();
       const total = items.length;
-      const batchSize = 3000;
-      let currentIndex = 0;
+      const size = 5000;
+      let curr = 0;
 
-      while (currentIndex < total) {
-        const slice = items.slice(currentIndex, currentIndex + batchSize);
+      while (curr < total) {
+        const chunk = items.slice(curr, curr + size);
         await new Promise((resolve, reject) => {
           const tx = db.transaction(STORE_NAME, 'readwrite');
           const store = tx.objectStore(STORE_NAME);
-          for (let i = 0; i < slice.length; i++) {
-            const it = slice[i];
+          for (let i = 0; i < chunk.length; i++) {
+            const it = chunk[i];
             const q = it.question || it.soal || it.Question || it.SOAL;
             const a = it.answer || it.jawaban || it.Answer || it.JAWABAN;
             if (q) store.add({ question: String(q).trim(), answer: a ? String(a).trim() : '' });
@@ -473,277 +482,247 @@
           tx.oncomplete = () => resolve();
           tx.onerror = (e) => reject(e.target.error);
         });
-
-        currentIndex += slice.length;
-        await new Promise(r => setTimeout(r, 10));
+        curr += chunk.length;
+        const pct = 50 + Math.round((curr / total) * 45);
+        updateModal(pct, `Menyimpan: ${curr.toLocaleString()} / ${total.toLocaleString()} baris...`);
+        await new Promise(r => setTimeout(r, 5));
       }
     }
 
     /* =========================================================
-       4. AUTOMAATTINEN LATAAMINEN (OSAT 1-3)
+       4. KATA MUTIARA ROTATOR (ANTI-BETE)
        ========================================================= */
-    async function autoHydrateMultiPart() {
-      const count = await getStoredCount();
-      
-      // Ladataan osat automaattisesti, jos kanta on tyhjä tai alle 100 000
-      if (count < 100000) {
-        isDownloadingMaster = true;
-        showModal("Downloading Master Bank", "Connecting to data stream...", 5);
-        
-        const parts = [
-          { name: 'data-part1.json', label: 'Part 1 of 3' },
-          { name: 'data-part2.json', label: 'Part 2 of 3' },
-          { name: 'data-part3.json', label: 'Part 3 of 3' }
-        ];
-        
-        for (let i = 0; i < parts.length; i++) {
-          const part = parts[i];
-          document.getElementById('modal-part-indicator').textContent = part.label;
-          
-          try {
-            const basePct = Math.round((i / parts.length) * 100);
-            updateModalProgress(basePct, `Fetching ${part.name}...`);
-            
-            const res = await fetch(`${part.name}?t=${Date.now()}`);
-            if (!res.ok) throw new Error(`Could not load ${part.name}`);
-            
-            const data = await res.json();
-            updateModalProgress(basePct + 15, `Ingesting ${data.length.toLocaleString()} questions into local storage...`);
-            await ingestBatchArray(data);
-          } catch (err) {
-            console.error("Part ingestion error:", part.name, err);
-          }
-        }
-        
-        updateModalProgress(100, "Setup complete! Launching engine...");
-        await updateStatBadges();
-        await syncWorkerData();
-        
+    const retailQuotes = [
+      "Hasil terbaik datang dari persiapan yang tidak pernah setengah-setengah.",
+      "Kunci sukses FT bukan menghafal semua, tapi tahu cara mencari yang tepat.",
+      "Kerja cerdas, teliti di toko, lulus ujian fungsional dengan nilai sempurna!",
+      "Disiplin hari ini adalah jalan pintas menuju promosi jabatan esok hari.",
+      "Fokus pada proses, tenang saat ujian, biarkan hasil membuktikan kualitasmu.",
+      "Setiap langkah kecil yang kamu pelajari hari ini bernilai besar untuk kariermu."
+    ];
+
+    let quoteTimer = null;
+    function startQuoteRotator() {
+      let qIdx = 0;
+      const el = document.getElementById('quote-display');
+      quoteTimer = setInterval(() => {
+        qIdx = (qIdx + 1) % retailQuotes.length;
+        el.style.opacity = '0';
         setTimeout(() => {
-          isDownloadingMaster = false;
-          hideModal();
-        }, 1200);
+          el.textContent = `"${retailQuotes[qIdx]}"`;
+          el.style.opacity = '1';
+        }, 300);
+      }, 3500);
+    }
+
+    function stopQuoteRotator() {
+      if (quoteTimer) clearInterval(quoteTimer);
+    }
+
+    /* =========================================================
+       5. PARALLEL AUTO-HYDRATE (SUPER FAST)
+       ========================================================= */
+    async function autoHydrateData() {
+      const count = await getTotalCount();
+      if (count < 100000) {
+        isSyncing = true;
+        openModal("Sinkronisasi Kilat Bank Soal", "Menyedot Part 1, 2, 3 secara paralel...", 10);
+        startQuoteRotator();
+
+        const partFiles = ['data-part1.json', 'data-part2.json', 'data-part3.json'];
+
+        try {
+          // Download serentak ketiga file sekaligus
+          const fetchPromises = partFiles.map(async (name) => {
+            const res = await fetch(`${name}?t=${Date.now()}`);
+            if (!res.ok) throw new Error(`Berkas ${name} tidak ditemukan`);
+            return res.json();
+          });
+
+          updateModal(35, "Mengunduh 3 paket soal sekaligus...");
+          const [p1, p2, p3] = await Promise.all(fetchPromises);
+
+          updateModal(50, "Menggabungkan 160.000 data ke penyimpanan HP...");
+          const allData = p1.concat(p2, p3);
+          
+          await ingestBatch(allData);
+
+          updateModal(100, "Selesai 100%! Mesin siap digunakan.");
+          await refreshCounter();
+          await syncWorker();
+
+          setTimeout(() => {
+            stopQuoteRotator();
+            isSyncing = false;
+            closeModal();
+          }, 800);
+        } catch (err) {
+          stopQuoteRotator();
+          console.error("Gagal sinkronisasi paralel:", err);
+          closeModal();
+        }
       } else {
-        await syncWorkerData();
+        await syncWorker();
       }
     }
 
     /* =========================================================
-       5. HAKU JA TULOSTEN NÄYTTÄMINEN
+       6. PENCARIAN & RENDERING HASIL
        ========================================================= */
-    let lastQueryTime = 0;
+    let startTime = 0;
 
-    function triggerSearchNow() {
+    function executeSearchNow() {
       const inputEl = document.getElementById('search-input');
       const query = inputEl.value.trim();
       if (!query) return;
 
-      // Suljetaan mobiilinäppäimistö Enter-painalluksen jälkeen
       inputEl.blur();
 
       const minScore = parseFloat(document.getElementById('min-accuracy-select').value) / 100;
-      const loader = document.getElementById('search-loader');
-      const resultsCont = document.getElementById('results-container');
+      const resultsWrapper = document.getElementById('results-wrapper');
+      
+      resultsWrapper.innerHTML = `
+        <div class="p-8 text-center bg-[#0c101c] rounded-2xl border border-[#192238]">
+          <i class="fa-solid fa-spinner fa-spin text-2xl text-indigo-500 mb-2"></i>
+          <p class="text-xs text-slate-400 font-semibold">Memindai 160.000 kisi-kisi...</p>
+        </div>
+      `;
 
-      loader.classList.remove('hidden');
-      resultsCont.innerHTML = '';
-      lastQueryTime = performance.now();
-
-      if (searchWorker) {
-        searchWorker.postMessage({
-          action: 'SEARCH',
-          payload: { query, minScore, topK: 15 }
-        });
-      } else {
-        loader.classList.add('hidden');
-        alert("Search engine is still preparing data, please wait a moment...");
+      startTime = performance.now();
+      if (worker) {
+        worker.postMessage({ action: 'SEARCH', payload: { query, minScore } });
       }
     }
 
-    function renderSearchResults(results) {
-      document.getElementById('search-loader').classList.add('hidden');
-      const elapsed = (performance.now() - lastQueryTime).toFixed(1);
+    function renderResults(results) {
+      const elapsed = (performance.now() - startTime).toFixed(1);
       document.getElementById('search-latency').textContent = `${elapsed} ms`;
-      document.getElementById('results-count').textContent = `${results.length} Items`;
+      document.getElementById('result-badge').textContent = `${results.length} hasil`;
 
-      const cont = document.getElementById('results-container');
-      cont.innerHTML = '';
+      const wrapper = document.getElementById('results-wrapper');
+      wrapper.innerHTML = '';
 
       if (results.length === 0) {
-        cont.innerHTML = `
-          <div class="p-6 text-center text-slate-400 text-sm bg-white dark:bg-dark-card rounded-2xl border border-slate-200 dark:border-dark-border">
-            <i class="fa-solid fa-circle-exclamation text-2xl text-amber-500 mb-1"></i>
-            <p>No suitable matching questions found. Try lowering the Minimum Match threshold.</p>
+        wrapper.innerHTML = `
+          <div class="p-8 text-center rounded-2xl bg-[#0c101c] border border-[#192238]">
+            <i class="fa-solid fa-triangle-exclamation text-amber-500 text-2xl mb-2"></i>
+            <p class="text-xs text-slate-300 font-bold">Tidak ada soal yang cocok.</p>
+            <p class="text-[11px] text-slate-500 mt-1">Coba kurangi kata pencarian atau turunkan Batas Min ke 30%.</p>
           </div>
         `;
         return;
       }
 
-      results.forEach((item, index) => {
-        let badgeColor = 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20';
-        if (item.score >= 80) badgeColor = 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20';
-        else if (item.score >= 60) badgeColor = 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
+      results.forEach((item, idx) => {
+        let badgeColor = 'bg-rose-500/10 text-rose-400 border-rose-500/20';
+        if (item.score >= 80) badgeColor = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+        else if (item.score >= 55) badgeColor = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
 
         const card = document.createElement('div');
-        card.className = 'bg-white dark:bg-dark-card rounded-2xl p-4 md:p-5 border border-slate-200 dark:border-dark-border shadow-sm hover:border-blue-500 transition-all';
+        card.className = 'bg-[#0c101c] rounded-2xl p-4 md:p-5 border border-[#192238] shadow-md hover:border-indigo-500/50 transition-all';
         card.innerHTML = `
-          <div class="flex items-start justify-between gap-3 mb-2">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">#Match Result ${index + 1}</span>
-            <span class="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold border ${badgeColor}">
-              ${item.score}% Accuracy
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold tracking-wider text-slate-500 uppercase">#KANDIDAT ${idx + 1}</span>
+            <span class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full border ${badgeColor}">
+              ${item.score}% Cocok
             </span>
           </div>
-          <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-3">${escapeHtml(item.question)}</p>
-          <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/70 border border-slate-100 dark:border-dark-border flex items-center justify-between gap-2">
+          <p class="text-xs md:text-sm font-semibold text-slate-200 mb-3 leading-relaxed">${escapeHtml(item.question)}</p>
+          <div class="p-3 rounded-xl bg-[#080b13] border border-[#182136] flex items-center justify-between gap-3">
             <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 block mb-0.5">Answer</span>
-              <span class="text-sm font-bold text-slate-900 dark:text-white select-all">${escapeHtml(item.answer)}</span>
+              <span class="text-[9px] font-bold text-indigo-400 uppercase tracking-wider block mb-0.5">KUNCI JAWABAN</span>
+              <span class="text-xs md:text-sm font-bold text-white select-all">${escapeHtml(item.answer)}</span>
             </div>
-            <button onclick="copyAnswerText('${escapeAttr(item.answer)}', this)" class="p-2 rounded-lg bg-white dark:bg-dark-card text-slate-500 hover:text-blue-600 shadow-sm border border-slate-200 dark:border-dark-border text-xs">
+            <button onclick="copyAnswer('${escapeAttr(item.answer)}', this)" class="p-2 rounded-lg bg-[#111728] text-slate-400 hover:text-white border border-[#1d2740] text-xs">
               <i class="fa-regular fa-clone"></i>
             </button>
           </div>
         `;
-        cont.appendChild(card);
+        wrapper.appendChild(card);
       });
     }
 
     /* =========================================================
-       6. TIEDOSTOJEN TUONTI (LISÄPANKIT)
+       7. INTERAKSI & UTILITY
        ========================================================= */
-    async function handleFileUpload(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const ext = file.name.split('.').pop().toLowerCase();
-      showModal("Reading File", `Parsing ${file.name}...`, 20);
-
-      try {
-        if (ext === 'xlsx' || ext === 'xls' || ext === 'csv') {
-          const reader = new FileReader();
-          reader.onload = async (evt) => {
-            const data = new Uint8Array(evt.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            const json = XLSX.utils.sheet_to_json(sheet);
-            await ingestBatchArray(json);
-            await updateStatBadges();
-            await syncWorkerData();
-            hideModal();
-            alert(`Success! Merged questions from ${file.name}.`);
-          };
-          reader.readAsArrayBuffer(file);
-        } else if (ext === 'pdf') {
-          const reader = new FileReader();
-          reader.onload = async (evt) => {
-            const typedarray = new Uint8Array(evt.target.result);
-            const pdf = await pdfjsLib.getDocument(typedarray).promise;
-            let fullText = '';
-            for (let i = 1; i <= pdf.numPages; i++) {
-              const page = await pdf.getPage(i);
-              const textContent = await page.getTextContent();
-              fullText += textContent.items.map(s => s.str).join(' ') + '\n';
-            }
-            const lines = fullText.split('\n').filter(l => l.trim().length > 10);
-            const items = lines.map(line => {
-              const parts = line.split(/[\:\-–\=]/);
-              return { question: parts[0], answer: parts[1] || '' };
-            });
-            await ingestBatchArray(items);
-            await updateStatBadges();
-            await syncWorkerData();
-            hideModal();
-            alert(`Success! Merged questions from ${file.name}.`);
-          };
-          reader.readAsArrayBuffer(file);
-        } else if (ext === 'json') {
-          const reader = new FileReader();
-          reader.onload = async (evt) => {
-            const parsed = JSON.parse(evt.target.result);
-            if (Array.isArray(parsed)) {
-              await ingestBatchArray(parsed);
-              await updateStatBadges();
-              await syncWorkerData();
-              hideModal();
-              alert(`Success! Merged questions from ${file.name}.`);
-            }
-          };
-          reader.readAsText(file);
-        }
-      } catch (err) {
-        hideModal();
-        alert("Upload error: " + err.message);
-      }
-      e.target.value = '';
-    }
-
-    /* =========================================================
-       7. KÄYTTÖLIITTYMÄTOIMINNOT
-       ========================================================= */
-    function switchView(viewName) {
+    function switchTab(tab) {
       document.getElementById('view-landing').classList.add('hidden');
       document.getElementById('view-search').classList.add('hidden');
       document.getElementById('view-manage').classList.add('hidden');
-      document.getElementById(`view-${viewName}`).classList.remove('hidden');
+      document.getElementById('view-tips').classList.add('hidden');
+
+      document.querySelectorAll('#sidebar nav button').forEach(b => {
+        b.className = 'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-[#121829]';
+      });
+
+      document.getElementById(`view-${tab}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`nav-btn-${tab}`);
+      if (activeBtn) {
+        activeBtn.className = 'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold bg-[#1a2238] text-white shadow-sm border border-indigo-500/30';
+      }
 
       if (window.innerWidth < 768) {
-        document.getElementById('app-sidebar').classList.add('-translate-x-full');
+        document.getElementById('sidebar').classList.add('-translate-x-full');
       }
     }
 
-    function toggleMobileSidebar() {
-      const s = document.getElementById('app-sidebar');
-      s.classList.toggle('-translate-x-full');
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('-translate-x-full');
     }
 
-    function toggleTheme() {
-      const html = document.documentElement;
-      html.classList.toggle('dark');
-      const isDark = html.classList.contains('dark');
-      document.getElementById('theme-label').textContent = isDark ? 'Dark' : 'Light';
-      localStorage.setItem('bc_theme', isDark ? 'dark' : 'light');
-    }
-
-    function showModal(title, desc, pct) {
-      document.getElementById('modal-title').textContent = title;
-      document.getElementById('modal-desc').textContent = desc;
-      updateModalProgress(pct);
-      document.getElementById('progress-modal').classList.remove('hidden');
-    }
-
-    function updateModalProgress(pct, text) {
-      document.getElementById('modal-progress-bar').style.width = `${pct}%`;
-      document.getElementById('modal-progress-text').textContent = `${pct}%`;
-      if (text) document.getElementById('modal-desc').textContent = text;
-    }
-
-    function hideModal() {
-      document.getElementById('progress-modal').classList.add('hidden');
-    }
-
-    async function handleClipboardPaste() {
+    async function pasteFromClipboard() {
       try {
         const text = await navigator.clipboard.readText();
         if (text) {
           document.getElementById('search-input').value = text;
-          triggerSearchNow();
+          updateCharCount();
+          executeSearchNow();
         }
-      } catch (e) {
-        alert("Clipboard permission required. Please paste manually into the text area.");
+      } catch (err) {
+        alert("Izin clipboard ditolak. Silakan paste manual ke dalam kolom.");
       }
     }
 
-    function clearSearchBox() {
+    function clearSearchInput() {
       document.getElementById('search-input').value = '';
-      document.getElementById('results-container').innerHTML = '';
-      document.getElementById('results-count').textContent = '0 Items';
+      updateCharCount();
+      document.getElementById('results-wrapper').innerHTML = `
+        <div id="empty-hint" class="p-10 text-center rounded-2xl bg-[#0b0e19]/60 border border-dashed border-[#161f36]">
+          <i class="fa-solid fa-microchip text-3xl text-slate-600 mb-3"></i>
+          <h4 class="text-sm font-bold text-slate-300">brandretailcortex AI Engine Bekerja...</h4>
+          <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Masukkan potongan soal di atas untuk mencocokkan kisi-kisi dan jawaban resmi.</p>
+        </div>
+      `;
+      document.getElementById('result-badge').textContent = '0 hasil';
     }
 
-    function copyAnswerText(text, btn) {
+    function updateCharCount() {
+      const len = document.getElementById('search-input').value.length;
+      document.getElementById('char-count').textContent = `${len} karakter`;
+    }
+
+    function copyAnswer(text, btn) {
       navigator.clipboard.writeText(text);
       const icon = btn.querySelector('i');
-      icon.className = 'fa-solid fa-check text-emerald-500';
-      setTimeout(() => icon.className = 'fa-regular fa-clone', 1500);
+      icon.className = 'fa-solid fa-check text-emerald-400';
+      setTimeout(() => icon.className = 'fa-regular fa-clone', 1200);
+    }
+
+    function openModal(title, desc, pct) {
+      document.getElementById('sync-modal-title').textContent = title;
+      document.getElementById('sync-modal-desc').textContent = desc;
+      updateModal(pct);
+      document.getElementById('sync-modal').classList.remove('hidden');
+    }
+
+    function updateModal(pct, desc) {
+      document.getElementById('sync-progress-bar').style.width = `${pct}%`;
+      document.getElementById('sync-pct-text').textContent = `${pct}%`;
+      if (desc) document.getElementById('sync-modal-desc').textContent = desc;
+    }
+
+    function closeModal() {
+      document.getElementById('sync-modal').classList.add('hidden');
     }
 
     function escapeHtml(str) {
@@ -756,39 +735,30 @@
       return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
     }
 
-    /* =========================================================
-       8. ALUSTUS JA TAPAHTUMANKÄSITTELIJÄT
-       ========================================================= */
+    // Inisialisasi
     window.addEventListener('DOMContentLoaded', async () => {
-      if (localStorage.getItem('bc_theme') === 'light') {
-        document.documentElement.classList.remove('dark');
-        document.getElementById('theme-label').textContent = 'Light';
-      } else {
-        document.documentElement.classList.add('dark');
-      }
-
       if (navigator.storage && navigator.storage.persist) {
         navigator.storage.persist();
       }
 
-      initWebWorker();
-      await updateStatBadges();
-      await syncWorkerData(); 
-      await autoHydrateMultiPart();
+      initWorker();
+      await refreshCounter();
+      await syncWorker();
+      await autoHydrateData();
 
       const searchInput = document.getElementById('search-input');
-
-      // Enter-näppäimen tunnistus sekä tietokoneella että mobiilissa
-      searchInput.addEventListener('keydown', (e) => {
-        if ((e.key === 'Enter' || e.keyCode === 13) && !e.shiftKey) {
-          e.preventDefault();
-          triggerSearchNow();
+      searchInput.addEventListener('input', () => {
+        updateCharCount();
+        if (document.getElementById('realtime-check').checked) {
+          executeSearchNow();
         }
       });
 
-      searchInput.addEventListener('input', () => {
-        if (document.getElementById('realtime-toggle').checked) {
-          triggerSearchNow();
+      // Enter untuk PC dan HP (keyCode 13)
+      searchInput.addEventListener('keydown', (e) => {
+        if ((e.key === 'Enter' || e.keyCode === 13) && !e.shiftKey) {
+          e.preventDefault();
+          executeSearchNow();
         }
       });
     });
