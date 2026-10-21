@@ -509,20 +509,35 @@
     <!-- Global Toast Container -->
     <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- Multi-Part Auto-Hydration Modal (Initial First Launch for Buyers) -->
-    <div id="syncModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-7 max-w-sm w-full text-center space-y-4 shadow-2xl">
-        <div class="w-14 h-14 mx-auto rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center animate-pulse">
-          <i class="ph ph-cloud-arrow-down text-3xl font-bold"></i>
+    <!-- Multi-Part Auto-Hydration Modal (With Heavy Anti-Close Protection) -->
+    <div id="syncModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4 select-none">
+      <div class="bg-white dark:bg-slate-900 border-2 border-amber-500/50 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center space-y-4 shadow-2xl relative overflow-hidden">
+        
+        <!-- Glowing Warning Icon -->
+        <div class="w-16 h-16 mx-auto rounded-2xl bg-amber-500/15 text-amber-500 dark:text-amber-400 flex items-center justify-center border border-amber-500/30 animate-pulse">
+          <i class="ph ph-warning-octagon text-3xl font-bold"></i>
         </div>
+
         <div>
-          <h3 class="text-base font-black font-display text-slate-900 dark:text-white" id="syncModalTitle">Initializing Master Question Bank</h3>
-          <p id="syncModalDesc" class="text-xs text-slate-500 dark:text-slate-400 mt-1">Downloading and locking multi-part data into your device memory...</p>
+          <h3 class="text-lg sm:text-xl font-black font-display text-slate-900 dark:text-white" id="syncModalTitle">Downloading Master Database</h3>
+          <p id="syncModalDesc" class="text-xs text-slate-500 dark:text-slate-400 mt-1">Connecting to repository storage...</p>
         </div>
-        <div class="w-full bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
-          <div id="syncModalProgress" class="bg-indigo-600 h-full w-0 transition-all duration-300"></div>
+
+        <!-- Strict Warning Banner -->
+        <div class="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/25 text-rose-600 dark:text-rose-400 text-xs font-bold flex items-center gap-2.5 text-left">
+          <i class="ph ph-prohibit text-xl shrink-0"></i>
+          <span>DO NOT CLOSE OR REFRESH THIS PAGE! Wait until 100% complete so all 160,000+ questions lock permanently into your device.</span>
         </div>
-        <p class="text-[11px] text-slate-400 font-mono" id="syncModalPct">0%</p>
+
+        <div class="space-y-1.5 pt-1">
+          <div class="w-full bg-slate-200 dark:bg-slate-800 h-3 rounded-full overflow-hidden p-0.5 border border-slate-300 dark:border-slate-700">
+            <div id="syncModalProgress" class="bg-gradient-to-r from-indigo-600 via-indigo-500 to-rose-500 h-full w-0 rounded-full transition-all duration-300"></div>
+          </div>
+          <div class="flex items-center justify-between text-[11px] font-mono font-bold text-slate-400 px-1">
+            <span id="syncModalPartLabel">Part 1 of 3</span>
+            <span id="syncModalPct" class="text-indigo-600 dark:text-indigo-400 font-extrabold text-xs">0%</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -557,6 +572,16 @@
     let activeQuestions = [];
     let searchWorker = null;
     let isWorkerSearching = false;
+    let isDownloadingMaster = false;
+
+    // Prevent accidental reload or close during multi-part hydration
+    window.addEventListener('beforeunload', (e) => {
+      if (isDownloadingMaster) {
+        e.preventDefault();
+        e.returnValue = 'Question bank is currently syncing to your device memory. Leaving now will cancel storage!';
+        return e.returnValue;
+      }
+    });
 
     // Default starter fallback
     const DEFAULT_FALLBACK_SEED = [
@@ -847,12 +872,21 @@
 
         req.onsuccess = async () => {
           let items = req.result || [];
-          if (items.length === 0) {
-            // First time launch: Auto-hydrate multi-part files
+          if (items.length === 0 || items.length < 100000) {
+            // First time launch or incomplete download: auto-hydrate all 3 parts
             const hydrated = await checkMasterDBUpdates(false);
-            if (!hydrated) {
+            if (!hydrated && items.length === 0) {
               await saveBulkToStorage(DEFAULT_FALLBACK_SEED);
               activeQuestions = [...DEFAULT_FALLBACK_SEED];
+            } else if (hydrated) {
+              const refreshed = await new Promise(res => {
+                const rTx = db.transaction(STORE_NAME, 'readonly');
+                const rStore = rTx.objectStore(STORE_NAME);
+                const rReq = rStore.getAll();
+                rReq.onsuccess = () => res(rReq.result || []);
+                rReq.onerror = () => res([]);
+              });
+              activeQuestions = refreshed;
             }
           } else {
             activeQuestions = items;
@@ -901,36 +935,44 @@
       const progress = document.getElementById('syncModalProgress');
       const pctLabel = document.getElementById('syncModalPct');
       const descLabel = document.getElementById('syncModalDesc');
+      const partLabel = document.getElementById('syncModalPartLabel');
 
       try {
+        isDownloadingMaster = true;
         modal.classList.remove('hidden');
-        progress.style.width = '10%';
-        pctLabel.innerText = '10%';
-        descLabel.innerText = 'Checking repository for data-part1, data-part2, data-part3...';
+        progress.style.width = '5%';
+        pctLabel.innerText = '5%';
+        descLabel.innerText = 'Verifying local memory and connecting to repository...';
+        if (partLabel) partLabel.innerText = 'Initializing...';
 
         let combinedData = [];
 
-        // Check if multi-part files exist (bypass 25MB)
-        const partNames = ['data-part1.json', 'data-part2.json', 'data-part3.json'];
+        // Check if multi-part files exist (bypass GitHub 25MB limit)
+        const partNames = [
+          { file: 'data-part1.json', label: 'Part 1 of 3' },
+          { file: 'data-part2.json', label: 'Part 2 of 3' },
+          { file: 'data-part3.json', label: 'Part 3 of 3' }
+        ];
         let hasParts = false;
 
         for (let i = 0; i < partNames.length; i++) {
-          const partFile = partNames[i];
+          const { file, label } = partNames[i];
+          if (partLabel) partLabel.innerText = label;
           try {
-            const res = await fetch(partFile, { cache: 'no-cache' });
+            descLabel.innerText = `Downloading ${file} (${label}). Please do not close...`;
+            const res = await fetch(`${file}?t=${Date.now()}`, { cache: 'no-cache' });
             if (res.ok) {
               hasParts = true;
-              descLabel.innerText = `Downloading ${partFile} (${i + 1} of 3)...`;
               const json = await res.json();
               if (Array.isArray(json)) {
                 combinedData.push(...json);
               }
-              const p = 15 + Math.round(((i + 1) / partNames.length) * 55);
+              const p = Math.round(((i + 1) / partNames.length) * 75);
               progress.style.width = `${p}%`;
               pctLabel.innerText = `${p}%`;
             }
           } catch (e) {
-            console.warn(`Part ${partFile} skipped:`, e);
+            console.warn(`Part ${file} skipped or failed:`, e);
           }
         }
 
@@ -938,7 +980,7 @@
         if (!hasParts || combinedData.length === 0) {
           try {
             descLabel.innerText = 'Checking single data-master.json fallback...';
-            const res = await fetch('data-master.json', { cache: 'no-cache' });
+            const res = await fetch(`data-master.json?t=${Date.now()}`, { cache: 'no-cache' });
             if (res.ok) {
               const json = await res.json();
               if (Array.isArray(json)) combinedData = json;
@@ -947,27 +989,32 @@
         }
 
         if (combinedData.length > 0) {
-          descLabel.innerText = `Locking ${combinedData.length.toLocaleString()} questions permanently to this device...`;
-          progress.style.width = '85%';
-          pctLabel.innerText = '85%';
+          descLabel.innerText = `Locking ${combinedData.length.toLocaleString()} questions permanently into IndexedDB...`;
+          if (partLabel) partLabel.innerText = 'Finalizing Storage';
+          progress.style.width = '88%';
+          pctLabel.innerText = '88%';
 
           const formatted = combinedData.map(normalizeParsedEntry);
           await saveBulkToStorage(formatted);
 
           progress.style.width = '100%';
           pctLabel.innerText = '100%';
+          descLabel.innerText = 'Success! Question database is permanently locked and ready for offline use.';
           showToast(`Master database loaded (${formatted.length.toLocaleString()} items)!`, 'success');
           
           setTimeout(() => {
+            isDownloadingMaster = false;
             modal.classList.add('hidden');
-          }, 800);
+          }, 1200);
           return true;
         } else {
+          isDownloadingMaster = false;
           modal.classList.add('hidden');
           if (isManual) showToast('No master database files found in repository.', 'warning');
           return false;
         }
       } catch (err) {
+        isDownloadingMaster = false;
         modal.classList.add('hidden');
         if (isManual) showToast('Sync failed: ' + err.message, 'error');
         return false;
