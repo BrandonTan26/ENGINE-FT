@@ -8,7 +8,7 @@
   <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -55,10 +55,10 @@
     ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.6); }
     button, input, textarea { touch-action: manipulation; }
     @keyframes subtlePulse {
-      0%, 100% { opacity: 0.25; transform: scale(1); }
-      50% { opacity: 0.45; transform: scale(1.04); }
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 0.55; transform: scale(1.03); }
     }
-    .ambient-glow { animation: subtlePulse 7s ease-in-out infinite; }
+    .ambient-glow { animation: subtlePulse 6s ease-in-out infinite; }
     .quote-fade { transition: opacity 0.35s ease-in-out; }
   </style>
 </head>
@@ -96,10 +96,11 @@
         
         <div class="relative w-full rounded-3xl bg-white/90 dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800 backdrop-blur-xl p-3.5 sm:p-5 shadow-2xl flex flex-col items-center">
           <img 
+            id="landingHeroImg"
             src="logo.png" 
             alt="Retail FT Learning Squad Banner" 
             class="w-full max-h-72 sm:max-h-80 object-contain rounded-2xl select-none transition-transform duration-300 hover:scale-[1.01]"
-            onerror="this.onerror=null; this.src='https://placehold.co/600x420/4f46e5/ffffff?text=logo.png+Banner'; document.getElementById('logoMissingNotice').classList.remove('hidden');"
+            onerror="this.onerror=null; this.src='https://placehold.co/600x420/4f46e5/ffffff?text=brandretailcortex+FT+Banner'; document.getElementById('logoMissingNotice').classList.remove('hidden');"
           >
           
           <div id="logoMissingNotice" class="hidden mt-2 p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-600 dark:text-amber-400 font-semibold">
@@ -109,7 +110,7 @@
           <!-- Dynamic Status Badges Underneath Banner -->
           <div class="flex flex-wrap items-center justify-center gap-2 pt-3">
             <span class="text-[11px] font-bold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5 shadow-sm">
-              <i class="ph ph-hard-drive font-bold"></i> <span id="landingQuestionCountBadge">Loading Database...</span>
+              <i class="ph ph-hard-drive font-bold"></i> <span id="landingQuestionCountBadge">Memuat Database...</span>
             </span>
             <span class="text-[11px] font-bold px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 flex items-center gap-1">
               <i class="ph ph-sparkle"></i> Master Edition 2026
@@ -145,7 +146,7 @@
 
       <!-- Primary Action: Enter Engine -->
       <div class="pt-1">
-        <button onclick="enterEngineDashboard()" class="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-indigo-600 via-indigo-600 to-rose-600 hover:from-indigo-500 hover:to-rose-500 active:scale-95 text-white text-sm sm:text-base font-bold rounded-2xl shadow-xl shadow-indigo-600/25 flex items-center justify-center gap-2.5 mx-auto transition-all">
+        <button id="btnEnterEngine" onclick="enterEngineDashboard()" class="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-indigo-600 via-indigo-600 to-rose-600 hover:from-indigo-500 hover:to-rose-500 active:scale-95 text-white text-sm sm:text-base font-bold rounded-2xl shadow-xl shadow-indigo-600/25 flex items-center justify-center gap-2.5 mx-auto transition-all cursor-pointer">
           <span>Enter FT Search Engine</span>
           <i class="ph ph-arrow-right text-lg font-bold"></i>
         </button>
@@ -158,10 +159,11 @@
     <footer class="py-3 text-center text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800">
       <div class="flex flex-col sm:flex-row items-center justify-between gap-1 max-w-4xl mx-auto text-[11px]">
         <span>© 2026 brandretailcortex - FT Answer Search Engine. All rights reserved.</span>
-        <span class="text-slate-400 font-mono">v4.2 Multi-Part Scale</span>
+        <span class="text-slate-400 font-mono">v4.3 Ultra Stream Scale</span>
       </div>
     </footer>
   </section>
+
 
   <!-- ==================== SCREEN 2: MAIN DASHBOARD & SEARCH ENGINE ==================== -->
   <div id="view-app-root" class="hidden flex-1 flex-col min-h-screen">
@@ -255,7 +257,7 @@
           </div>
         </nav>
 
-        <!-- Bottom Controls & Anti-Delete Lock -->
+        <!-- Bottom Controls -->
         <div class="p-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
           <button id="themeToggle" onclick="toggleTheme()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800/70 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
             <span class="flex items-center gap-2">
@@ -308,7 +310,7 @@
           <!-- Search Input Box -->
           <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 md:p-5 shadow-sm space-y-3.5">
             <div class="relative">
-              <textarea id="searchQueryInput" rows="3" placeholder="Paste or type test question here... (e.g. What is OOS definition, bread return deadline, cashier tolerance balance. Press Enter to search)" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 text-sm md:text-base text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y transition"></textarea>
+              <textarea id="searchQueryInput" rows="3" placeholder="Paste or type test question here... (e.g. OOS, toleransi kasir, retur barang, FEFO. Press Enter or click Find Answer)" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 text-sm md:text-base text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y transition"></textarea>
               
               <div class="absolute right-3 bottom-3 text-[11px] text-slate-400 font-medium">
                 <span id="charCounter">0 chars</span>
@@ -332,7 +334,7 @@
                 </div>
               </div>
 
-              <button id="searchSubmitBtn" onclick="triggerSearchWithAnimation()" class="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs md:text-sm font-bold rounded-xl flex items-center justify-center gap-2 shadow-md shadow-indigo-600/30 transition">
+              <button id="searchSubmitBtn" onclick="triggerSearchWithAnimation()" class="w-full sm:w-auto px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs md:text-sm font-bold rounded-xl flex items-center justify-center gap-2 shadow-md shadow-indigo-600/30 transition">
                 <i id="searchBtnIcon" class="ph ph-magnifying-glass font-bold text-base"></i>
                 <span id="searchBtnText">Search Answer Now</span>
               </button>
@@ -452,7 +454,7 @@
                 <span>1. 100% Offline Standalone Architecture</span>
               </div>
               <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                All 160,000+ questions are held directly inside your phone's browser memory via <strong>IndexedDB Persistent Storage</strong>. There is no central server to crash or lag during nationwide peak testing hours.
+                All questions are held directly inside your phone's browser memory via <strong>IndexedDB Persistent Storage</strong>. There is no central server to crash or lag during peak testing hours.
               </p>
             </div>
 
@@ -486,7 +488,7 @@
     <!-- Global Toast Container -->
     <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- Multi-Part Auto-Hydration Modal (Paralel Fast Sync + Running Kata Mutiara) -->
+    <!-- Multi-Part Auto-Hydration Modal (With Stream Speed & Retail Quotes) -->
     <div id="syncModal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[100] hidden flex items-center justify-center p-4 select-none">
       <div class="bg-white dark:bg-slate-900 border-2 border-amber-500/50 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center space-y-4 shadow-2xl relative overflow-hidden">
         
@@ -503,10 +505,10 @@
         <!-- Strict Warning Banner -->
         <div class="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/25 text-rose-600 dark:text-rose-400 text-xs font-bold flex items-center gap-2.5 text-left">
           <i class="ph ph-prohibit text-xl shrink-0"></i>
-          <span>DO NOT CLOSE OR REFRESH THIS PAGE! Wait until 100% complete so all 160,000+ questions lock permanently into your device.</span>
+          <span>DO NOT CLOSE OR REFRESH THIS PAGE! Wait until 100% complete so all questions lock permanently into your device.</span>
         </div>
 
-        <!-- Running Motivasi Ritel -->
+        <!-- Running Retail Motivations -->
         <div class="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-left">
           <span class="text-[9px] font-bold text-indigo-500 uppercase tracking-wider block mb-0.5 flex items-center gap-1.5">
             <i class="ph ph-quotes font-bold"></i> Motivasi Hari Ini:
@@ -521,7 +523,7 @@
             <div id="syncModalProgress" class="bg-gradient-to-r from-indigo-600 via-indigo-500 to-rose-500 h-full w-0 rounded-full transition-all duration-300"></div>
           </div>
           <div class="flex items-center justify-between text-[11px] font-mono font-bold text-slate-400 px-1">
-            <span id="syncModalPartLabel">Parallel Fast Stream</span>
+            <span id="syncModalPartLabel">Stream Pipeline</span>
             <span id="syncModalPct" class="text-indigo-600 dark:text-indigo-400 font-extrabold text-xs">0%</span>
           </div>
         </div>
@@ -536,7 +538,7 @@
           <span class="inline-flex items-center gap-1 text-emerald-500 font-semibold">
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Standalone Engine Active
           </span>
-          <span class="text-slate-400 font-mono">v4.2 Multi-Part Scale</span>
+          <span class="text-slate-400 font-mono">v4.3 Ultra Stream Scale</span>
         </div>
       </div>
     </footer>
@@ -554,7 +556,7 @@
     let isWorkerSearching = false;
     let isDownloadingMaster = false;
 
-    // Prevent accidental reload or close during multi-part hydration
+    // Prevent accidental reload or close during hydration
     window.addEventListener('beforeunload', (e) => {
       if (isDownloadingMaster) {
         e.preventDefault();
@@ -576,6 +578,7 @@
     function startQuoteRotator() {
       let idx = 0;
       const el = document.getElementById('syncQuoteDisplay');
+      if (quoteInterval) clearInterval(quoteInterval);
       quoteInterval = setInterval(() => {
         idx = (idx + 1) % retailQuotes.length;
         if (el) {
@@ -908,9 +911,10 @@
       });
     }
 
+    // Optimized batch ingestion (10,000 per chunk)
     async function saveBulkToStorage(items) {
       const db = await initIndexedDB();
-      const batchSize = 5000;
+      const batchSize = 10000;
       let offset = 0;
 
       while (offset < items.length) {
@@ -918,14 +922,14 @@
         await new Promise((resolve, reject) => {
           const tx = db.transaction(STORE_NAME, 'readwrite');
           const store = tx.objectStore(STORE_NAME);
-          for (const item of slice) {
-            store.put(item);
+          for (let i = 0; i < slice.length; i++) {
+            store.put(slice[i]);
           }
           tx.oncomplete = () => resolve();
           tx.onerror = (e) => reject(e);
         });
         offset += slice.length;
-        await new Promise(r => setTimeout(r, 5));
+        await new Promise(r => setTimeout(r, 0));
       }
 
       const map = new Map();
@@ -937,7 +941,7 @@
       syncWorkerData();
     }
 
-    // --- AUTO-HYDRATION: PARALLEL MULTI-PART STREAMING ---
+    // --- AUTO-HYDRATION: FAST STREAM PIPELINE ---
     async function checkMasterDBUpdates(isManual = false) {
       const modal = document.getElementById('syncModal');
       const progress = document.getElementById('syncModalProgress');
@@ -950,58 +954,71 @@
         modal.classList.remove('hidden');
         progress.style.width = '10%';
         pctLabel.innerText = '10%';
-        descLabel.innerText = 'Downloading Part 1, 2, 3 in parallel stream...';
-        if (partLabel) partLabel.innerText = 'Parallel Fast Stream';
+        descLabel.innerText = 'Connecting to repository stream...';
+        if (partLabel) partLabel.innerText = 'Stream Pipeline Active';
         startQuoteRotator();
 
-        let combinedData = [];
-        const partNames = ['data-part1.json', 'data-part2.json', 'data-part3.json'];
+        let totalIngested = 0;
+        const partNames = [
+          { file: 'data-part1.json', label: 'Part 1 of 3' },
+          { file: 'data-part2.json', label: 'Part 2 of 3' },
+          { file: 'data-part3.json', label: 'Part 3 of 3' }
+        ];
 
-        try {
-          // Unduh serentak sekaligus
-          const fetchPromises = partNames.map(async (name) => {
-            const res = await fetch(`${name}?t=${Date.now()}`, { cache: 'no-cache' });
-            if (!res.ok) throw new Error(`Could not load ${name}`);
-            return res.json();
-          });
+        let hasAnyPart = false;
 
-          progress.style.width = '35%';
-          pctLabel.innerText = '35%';
+        for (let i = 0; i < partNames.length; i++) {
+          const p = partNames[i];
+          if (partLabel) partLabel.innerText = p.label;
+          descLabel.innerText = `Ingesting ${p.label}...`;
 
-          const results = await Promise.all(fetchPromises);
-          results.forEach(arr => {
-            if (Array.isArray(arr)) combinedData.push(...arr);
-          });
-        } catch (e) {
-          // Fallback single file jika part belum ada
+          try {
+            const res = await fetch(`${p.file}?t=${Date.now()}`, { cache: 'no-cache' });
+            if (res.ok) {
+              hasAnyPart = true;
+              const json = await res.json();
+              if (Array.isArray(json) && json.length > 0) {
+                const formatted = json.map(normalizeParsedEntry);
+                await saveBulkToStorage(formatted);
+                totalIngested += formatted.length;
+              }
+            }
+          } catch (e) {
+            console.warn(`Part ${p.file} skipped:`, e);
+          }
+
+          const pct = Math.round(((i + 1) / partNames.length) * 95);
+          progress.style.width = `${pct}%`;
+          pctLabel.innerText = `${pct}%`;
+        }
+
+        // Fallback: If no parts worked, try data-master.json
+        if (!hasAnyPart || totalIngested === 0) {
           try {
             descLabel.innerText = 'Checking single data-master.json fallback...';
             const res = await fetch(`data-master.json?t=${Date.now()}`, { cache: 'no-cache' });
             if (res.ok) {
               const json = await res.json();
-              if (Array.isArray(json)) combinedData = json;
+              if (Array.isArray(json) && json.length > 0) {
+                const formatted = json.map(normalizeParsedEntry);
+                await saveBulkToStorage(formatted);
+                totalIngested += formatted.length;
+              }
             }
-          } catch (errFallback) {}
+          } catch (e) {}
         }
 
-        if (combinedData.length > 0) {
-          descLabel.innerText = `Locking ${combinedData.length.toLocaleString()} questions permanently into IndexedDB...`;
-          progress.style.width = '75%';
-          pctLabel.innerText = '75%';
-
-          const formatted = combinedData.map(normalizeParsedEntry);
-          await saveBulkToStorage(formatted);
-
+        if (totalIngested > 0) {
           progress.style.width = '100%';
           pctLabel.innerText = '100%';
-          descLabel.innerText = 'Success! Question database is permanently locked and ready for offline use.';
-          showToast(`Master database loaded (${formatted.length.toLocaleString()} items)!`, 'success');
+          descLabel.innerText = `Success! ${totalIngested.toLocaleString()} questions permanently saved.`;
+          showToast(`Master database synced (${totalIngested.toLocaleString()} items)!`, 'success');
           
           setTimeout(() => {
             stopQuoteRotator();
             isDownloadingMaster = false;
             modal.classList.add('hidden');
-          }, 1000);
+          }, 800);
           return true;
         } else {
           stopQuoteRotator();
@@ -1033,7 +1050,7 @@
         return;
       }
 
-      inputEl.blur(); // Otomatis turunkan keyboard virtual di smartphone
+      inputEl.blur(); // Auto-collapse virtual keyboard on mobile
 
       if (isWorkerSearching) return;
       isWorkerSearching = true;
